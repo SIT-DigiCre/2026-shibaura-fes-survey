@@ -31,7 +31,7 @@ export function aggregate(rows: SurveyRecord[], today: string) {
   const bestTotal = genres.reduce((a, g) => a + g.b, 0);
   const top = genres.slice().sort((a, b) => b.b - a.b)[0];
 
-  const count = (key: 'q2' | 'q3' | 'q4' | 'q5' | 'q6', sort: boolean): Count[] => {
+  const count = (key: 'q2' | 'q3' | 'q4' | 'q6', sort: boolean): Count[] => {
     const q = QUESTIONS.find((x) => x.key === key)!;
     const list = q.opts.map((o) => ({
       label: o.l,
@@ -82,7 +82,6 @@ export function aggregate(rows: SurveyRecord[], today: string) {
     panels: [
       { title: '良かった理由', rows: count('q2', true) },
       { title: '部員の対応', rows: count('q4', true) },
-      { title: '年齢', rows: count('q5', false) },
       { title: '職業・属性', rows: count('q6', true) },
     ],
     hours,
