@@ -4,7 +4,7 @@
 
 ## 構成
 - Vite + TypeScript、UI フレームワークなし（Vanilla）。マルチページ。
-  - `/` … アンケート（サイネージ。`?m=phone` でスマホ版）
+  - `/` … アンケート（サイネージ。`?m=phone` かスマホからの閲覧でスマホ版。判定は `src/survey/mode.ts`、`?m=signage` で端末をサイネージに固定）
   - `/dashboard/` … 集計ダッシュボード（アンケートからはリンクしない。noindex）
 - データ: Google スプレッドシート + Apps Script（`gas/Code.gs`）。`doPost` で追記、`doGet` で全件 JSON。
 - 公開: Cloudflare Pages（GitHub から自動デプロイ）。

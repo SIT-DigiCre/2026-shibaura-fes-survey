@@ -9,6 +9,7 @@ import { sBest, sClick, sErr, sOut, sThanks, tone, unlockAudio } from './sound';
 import { deviceName, fetchCount, flush, newId, saveRecord, totalCount } from './store';
 import { initAdmin, openPin, pinKey, adminAct } from './admin';
 import { installAutoFullscreen } from './fullscreen';
+import { detectPhone } from './mode';
 
 const CFG = {
   THANKS_MS: 5000, // お礼画面の表示時間
@@ -19,7 +20,7 @@ const CFG = {
   DOUBLETAP_MS: 350, // 2回タップで★BEST
 };
 
-const PHONE = /[?&]m=phone(&|$)/.test(location.search);
+const PHONE = detectPhone(location.search);
 if (PHONE) {
   document.documentElement.className += ' is-phone';
   // スマホでは拡大を許可する

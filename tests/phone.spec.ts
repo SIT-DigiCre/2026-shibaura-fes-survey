@@ -1,7 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { SHOT, collectErrors, fontsReady, mockGas } from './helpers';
 
-test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+test.use({
+  viewport: { width: 390, height: 844 },
+  screen: { width: 390, height: 844 },
+  hasTouch: true,
+  isMobile: true,
+});
 
 test('スマホ版: 回答 → お礼に「スタッフに見せて」＋回答 ID', async ({ page }) => {
   const errors = collectErrors(page);
@@ -73,4 +78,42 @@ test('スマホ版: ロゴを 5 回タップしても管理画面は開かない
   await page.goto('/?m=phone');
   for (let i = 0; i < 5; i++) await page.locator('#idle .logo-hit').tap();
   await expect(page.locator('#pin')).toBeHidden();
+});
+
+test('スマホで / を開くと自動でスマホ版になる', async ({ page }) => {
+  const errors = collectErrors(page);
+  await mockGas(page);
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveClass(/is-phone/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({ path: SHOT + 'phone-00-auto.png' });
+  expect(errors).toEqual([]);
+});
+
+test('?m=signage を付けると、その端末はスマホ幅でもサイネージ版のまま', async ({ page }) => {
+  await mockGas(page);
+  await page.goto('/?m=signage');
+  await expect(page.locator('html')).not.toHaveClass(/is-phone/);
+  // 記憶されるので、次から / でもサイネージ版
+  await page.goto('/');
+  await expect(page.locator('#idle')).toBeVisible();
+  await expect(page.locator('html')).not.toHaveClass(/is-phone/);
+  // ?m=phone は記憶より優先
+  await page.goto('/?m=phone');
+  await expect(page.locator('html')).toHaveClass(/is-phone/);
+});
+
+test.describe('サイネージ実機相当（タッチ・540×1920）', () => {
+  test.use({
+    viewport: { width: 540, height: 1920 },
+    screen: { width: 540, height: 1920 },
+    hasTouch: true,
+    isMobile: true,
+  });
+  test('/ はサイネージ版のまま', async ({ page }) => {
+    await mockGas(page);
+    await page.goto('/');
+    await expect(page.locator('#idle')).toBeVisible();
+    await expect(page.locator('html')).not.toHaveClass(/is-phone/);
+  });
 });
