@@ -1,3 +1,5 @@
+import { GAS_URL as CONFIG_GAS_URL } from '../config';
+
 // 1 件の回答。この形のまま GAS に送り、スプレッドシートの 1 行になる。
 // 複数選択は ' / ' 区切りの文字列（スプレッドシートで読めるように）。
 export interface SurveyRecord {
@@ -109,4 +111,5 @@ export function downloadCsv(records: SurveyRecord[], name = 'デジクリアン�
   }
 }
 
-export const GAS_URL: string = (import.meta.env.VITE_GAS_URL as string | undefined) || '';
+// 送信先は src/config.ts。ビルド時に VITE_GAS_URL があればそちらを優先する（テストではモックに差し替える）
+export const GAS_URL: string = (import.meta.env.VITE_GAS_URL as string | undefined) || CONFIG_GAS_URL;

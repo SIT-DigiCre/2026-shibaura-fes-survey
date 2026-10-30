@@ -16,7 +16,6 @@
 ```sh
 npm install
 npx playwright install chromium   # 初回だけ
-cp .env.example .env              # VITE_GAS_URL に Apps Script の URL を書く
 npm run dev                       # http://localhost:5173/
 ```
 
@@ -41,7 +40,8 @@ npm run dev                       # http://localhost:5173/
    - 種類: **ウェブアプリ**
    - 次のユーザーとして実行: **自分**
    - アクセスできるユーザー: **全員**
-7. **デプロイ** を押し、表示された **ウェブアプリの URL**（`https://script.google.com/macros/s/…/exec`）を控える。これが `VITE_GAS_URL`。
+7. **デプロイ** を押し、表示された **ウェブアプリの URL**（`https://script.google.com/macros/s/…/exec`）を控え、[src/config.ts](src/config.ts) の `GAS_URL` に書く。
+   （ビルド時に環境変数 `VITE_GAS_URL` を渡した場合は、そちらが優先されます。テストではこれでモックに差し替えています）
 
 確認: ブラウザで `<URL>?count=1` を開いて `{"ok":true,"count":0}` が返れば準備完了。
 
@@ -66,16 +66,15 @@ GitHub Pages はリポジトリをそのまま配信するだけで、ビルド�
 初回だけリポジトリの設定が必要です。
 
 1. **Settings → Pages → Build and deployment → Source** を **GitHub Actions** にする（「Deploy from a branch」のままだと、ビルド前のファイルが公開されます）。
-2. **Settings → Secrets and variables → Actions → Variables** に `VITE_GAS_URL`（1-7 で控えた URL）を登録する。
-3. `master` に push すると Actions が動いて公開されます（**Actions** タブの「Deploy to GitHub Pages」から手動でも実行できます）。
+2. `master` に push すると Actions が動いて公開されます（**Actions** タブの「Deploy to GitHub Pages」から手動でも実行できます）。
 
 - サイトは `/<リポジトリ名>/` の下で配信されるので、ワークフローはビルド時に `BASE_PATH=/<リポジトリ名>/` を渡します（[vite.config.ts](vite.config.ts) の `base`）。手元の `npm run dev` / `npm run build` ではルート（`/`）のままです。
-- `VITE_GAS_URL` はビルド時に埋め込まれます。変えたときはワークフローを再実行してください。
+- 送信先の URL（`src/config.ts`）はビルド時に埋め込まれます。変えたときはコミットして push してください。
 - ダッシュボードの検索避けは、GitHub Pages では `<meta name="robots" content="noindex">` だけが効きます（`public/_headers` は Cloudflare Pages 用です。`robots.txt` もドメイン直下ではないので効きません）。
 
 ### Cloudflare Pages を使う場合
 
-ビルド コマンドは `npm run build`、出力ディレクトリは `dist`。環境変数に `VITE_GAS_URL` と `NODE_VERSION=22` を設定します。`BASE_PATH` は不要です。
+ビルド コマンドは `npm run build`、出力ディレクトリは `dist`。環境変数に `NODE_VERSION=22` を設定します。`BASE_PATH` は不要です。
 
 ## 3. スマホ用 QR コード
 
