@@ -8,6 +8,7 @@ import { installTouch } from './touch';
 import { sBest, sClick, sErr, sOut, sThanks, tone, unlockAudio } from './sound';
 import { deviceName, fetchCount, flush, newId, saveRecord, totalCount } from './store';
 import { initAdmin, openPin, pinKey, adminAct } from './admin';
+import { installAutoFullscreen } from './fullscreen';
 
 const CFG = {
   THANKS_MS: 5000, // お礼画面の表示時間
@@ -607,6 +608,9 @@ installTouch({
   longPressMs: CFG.LONGPRESS_MS,
   scrollable: PHONE,
 });
+
+// サイネージはタッチで全画面に（スマホ版はしない。PIN・管理画面の操作中もしない）
+if (!PHONE) installAutoFullscreen(() => st.mode !== 'pin' && st.mode !== 'admin');
 
 /* ================= 管理画面とのつなぎ ================= */
 initAdmin({

@@ -17,6 +17,8 @@ test('スマホ版: 回答 → お礼に「スタッフに見せて」＋回答 
   await page.getByRole('button', { name: 'タッチしてスタート' }).tap();
   await expect(page.locator('.q-num')).toHaveText('Q1');
   const opt = (v: string) => page.locator('.o[data-v="' + v + '"]');
+  // スマホ版は勝手に全画面にしない
+  expect(await page.evaluate(() => !!document.fullscreenElement)).toBe(false);
   await opt('A').tap();
   await page.waitForTimeout(400);
   await opt('F').tap();

@@ -13,6 +13,7 @@ import {
   unsent,
   fetchCount,
 } from './store';
+import { autoFullscreen, enterFullscreen, setAutoFullscreen } from './fullscreen';
 import type { Mode } from './main';
 
 const PIN = '2026';
@@ -149,7 +150,12 @@ function draw(msg: string) {
     '" data-act="ad-sound">効果音 ' +
     (soundOn ? 'ON' : 'OFF') +
     '</button>' +
-    '<button type="button" class="ab" data-act="ad-fs">全画面表示</button></div></div>' +
+    '<button type="button" class="ab" data-act="ad-fs">今すぐ全画面</button></div>' +
+    '<div class="ad-btns"><button type="button" class="ab w' +
+    (autoFullscreen() ? ' sel' : '') +
+    '" data-act="ad-autofs">タッチで自動的に全画面 ' +
+    (autoFullscreen() ? 'ON' : 'OFF') +
+    '</button></div></div>' +
     '<div class="ad-row"><div class="ad-btns">' +
     '<button type="button" class="ab w red' +
     (clearArmed ? ' armed' : '') +
@@ -195,18 +201,10 @@ export function adminAct(a: string, el: HTMLElement) {
     setPref('sound', soundOn ? '1' : '0');
     return draw('');
   }
-  if (a === 'ad-fs') {
-    const d = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
-    const f = d.requestFullscreen || d.webkitRequestFullscreen;
-    if (f) {
-      try {
-        const p = f.call(d) as unknown as Promise<void> | undefined;
-        if (p && p.catch) p.catch(() => undefined);
-      } catch {
-        /* noop */
-      }
-    }
-    return;
+  if (a === 'ad-fs') return enterFullscreen();
+  if (a === 'ad-autofs') {
+    setAutoFullscreen(!autoFullscreen());
+    return draw('');
   }
   if (a === 'ad-clear') {
     clearTimeout(clearT);

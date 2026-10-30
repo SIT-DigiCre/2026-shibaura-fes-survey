@@ -167,6 +167,35 @@ test('放置警告（20 秒延長できる）', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('タッチで全画面になり、管理画面で OFF にできる', async ({ page }) => {
+  const errors = collectErrors(page);
+  await mockGas(page);
+  await page.goto('/');
+  expect(await page.evaluate(() => !!document.fullscreenElement)).toBe(false);
+  await page.getByRole('button', { name: 'タッチしてスタート' }).click();
+  await expect.poll(() => page.evaluate(() => !!document.fullscreenElement)).toBe(true);
+  await expect(page.locator('.q-num')).toHaveText('Q1');
+
+  // 抜けても次のタッチで戻る
+  await page.evaluate(() => document.exitFullscreen());
+  await expect.poll(() => page.evaluate(() => !!document.fullscreenElement)).toBe(false);
+  await page.locator('.q-title').click();
+  await expect.poll(() => page.evaluate(() => !!document.fullscreenElement)).toBe(true);
+
+  // 管理画面で OFF
+  for (let i = 0; i < 5; i++) await page.locator('#main .logo-hit').click();
+  for (const k of ['2', '0', '2', '6']) await page.locator('.pk[data-k="' + k + '"]').click();
+  await page.getByRole('button', { name: 'タッチで自動的に全画面 ON' }).click();
+  await expect(page.getByRole('button', { name: 'タッチで自動的に全画面 OFF' })).toBeVisible();
+  await page.getByRole('button', { name: '閉じてアンケートに戻る' }).click();
+  await page.evaluate(() => (document.fullscreenElement ? document.exitFullscreen() : undefined));
+  await expect.poll(() => page.evaluate(() => !!document.fullscreenElement)).toBe(false);
+  await page.locator('.q-title').click();
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => !!document.fullscreenElement)).toBe(false);
+  expect(errors).toEqual([]);
+});
+
 test('管理画面: ロゴ 5 回 → PIN 2026', async ({ page }) => {
   const errors = collectErrors(page);
   await mockGas(page);
