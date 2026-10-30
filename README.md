@@ -55,38 +55,43 @@ npm run dev                       # http://localhost:5173/
 - `=` `+` `-` `@` で始まる入力は、数式にならないよう先頭に `'` を付けて保存します。
 - ダッシュボードの取得（`doGet`）は、合言葉なしだと自由コメントの列を除いて返します。
 
-## 2. Cloudflare Pages で公開
+## 2. GitHub Pages で公開
 
-1. このフォルダを GitHub のリポジトリに push する（`node_modules` `dist` `.env` は `.gitignore` 済み）。
-2. Cloudflare ダッシュボード → **Workers & Pages → 作成 → Pages → Git に接続** で、そのリポジトリを選ぶ。
-3. ビルド設定:
-   - フレームワーク プリセット: なし（None）
-   - ビルド コマンド: `npm run build`
-   - ビルド出力ディレクトリ: `dist`
-4. **環境変数**（本番・プレビューの両方）:
-   - `VITE_GAS_URL` = 1-7 で控えた URL
-   - `NODE_VERSION` = `22`
-5. **保存してデプロイ**。以後は GitHub に push するたびに自動でデプロイされます。
+公開先: https://sit-digicre.github.io/2026-shibaura-fes-survey/
 
-`VITE_GAS_URL` はビルド時に埋め込まれます。変えたときは Cloudflare で再デプロイしてください。
-`/dashboard/` には `X-Robots-Tag: noindex`（[public/_headers](public/_headers)）と `robots.txt` を付けています。
+GitHub Pages はリポジトリをそのまま配信するだけで、ビルドはしません。
+ブランチをそのまま公開すると、ビルド前のファイル（`/src/survey/style.css` や `.ts`）を読みにいくので CSS も JS も効きません。
+そこで、[.github/workflows/pages.yml](.github/workflows/pages.yml) でビルドしてから `dist/` を公開します。
+
+初回だけリポジトリの設定が必要です。
+
+1. **Settings → Pages → Build and deployment → Source** を **GitHub Actions** にする（「Deploy from a branch」のままだと、ビルド前のファイルが公開されます）。
+2. **Settings → Secrets and variables → Actions → Variables** に `VITE_GAS_URL`（1-7 で控えた URL）を登録する。
+3. `master` に push すると Actions が動いて公開されます（**Actions** タブの「Deploy to GitHub Pages」から手動でも実行できます）。
+
+- サイトは `/<リポジトリ名>/` の下で配信されるので、ワークフローはビルド時に `BASE_PATH=/<リポジトリ名>/` を渡します（[vite.config.ts](vite.config.ts) の `base`）。手元の `npm run dev` / `npm run build` ではルート（`/`）のままです。
+- `VITE_GAS_URL` はビルド時に埋め込まれます。変えたときはワークフローを再実行してください。
+- ダッシュボードの検索避けは、GitHub Pages では `<meta name="robots" content="noindex">` だけが効きます（`public/_headers` は Cloudflare Pages 用です。`robots.txt` もドメイン直下ではないので効きません）。
+
+### Cloudflare Pages を使う場合
+
+ビルド コマンドは `npm run build`、出力ディレクトリは `dist`。環境変数に `VITE_GAS_URL` と `NODE_VERSION=22` を設定します。`BASE_PATH` は不要です。
 
 ## 3. スマホ用 QR コード
 
-QR コードにする URL（プロジェクト名が `digicre-survey` の場合）:
+QR コードにする URL:
 
 ```
-https://digicre-survey.pages.dev/?m=phone
+https://sit-digicre.github.io/2026-shibaura-fes-survey/?m=phone
 ```
 
-Pages のプロジェクト名を変えた場合や独自ドメインを使う場合は、そのドメインに `/?m=phone` を付けてください。
 `?m=phone` を付け忘れるとサイネージ用の画面（540×1920 を縮小）になるので、QR を印刷する前にスマホで読み取って確認してください。
 
 スマホ版はお礼画面に「この画面をスタッフに見せてください」と回答 ID（`DC-P-XXXXXXXX`）を出し、そのまま止まります。
 
 ## 4. サイネージの設置
 
-- 端末: LG in-TOUCH Stretch 29"（540×1920 縦置き）の内蔵ブラウザで `https://…pages.dev/` を開き、全画面にする。
+- 端末: LG in-TOUCH Stretch 29"（540×1920 縦置き）の内蔵ブラウザで `https://sit-digicre.github.io/2026-shibaura-fes-survey/` を開き、全画面にする。
 - **管理画面**: 画面上部のロゴを 5 回続けてタップ → PIN `2026`。
   - **端末名**: 回答 ID が `DC-<端末名>-0001` になります。端末を 2 台以上置くときは必ず別の名前（`S1`, `S2` …）にする。
   - **画面の向き**: OS 側で回転できないときに 0° / 90° / 270° を選ぶ。
