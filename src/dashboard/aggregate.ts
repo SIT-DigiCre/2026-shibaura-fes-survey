@@ -1,5 +1,5 @@
 // 回答の集計（ダッシュボード用）
-import { GENRES, QUESTIONS, ratingScore } from '../shared/questions';
+import { GENRES, OTHER, QUESTIONS, ratingScore } from '../shared/questions';
 import { split, type SurveyRecord } from '../shared/record';
 
 export interface Count {
@@ -33,7 +33,9 @@ export function aggregate(rows: SurveyRecord[], today: string) {
 
   const count = (key: 'q2' | 'q3' | 'q4' | 'q6', sort: boolean): Count[] => {
     const q = QUESTIONS.find((x) => x.key === key)!;
-    const list = q.opts.map((o) => ({
+    // 「その他」はスマホ版だけの選択肢
+    const opts = q.other ? q.opts.concat([{ v: OTHER, l: OTHER }]) : q.opts;
+    const list = opts.map((o) => ({
       label: o.l,
       n: rows.filter((r) => (q.type === 'multi' ? split(r[key]).indexOf(o.v) >= 0 : r[key] === o.v)).length,
     }));
@@ -60,6 +62,7 @@ export function aggregate(rows: SurveyRecord[], today: string) {
       src: r.src === 'phone' ? 'スマホ' : 'サイネージ',
       text: [
         split(r.q7)
+          .filter((t) => t !== OTHER)
           .map((t) => '「' + t + '」')
           .join(''),
         r.text || '',

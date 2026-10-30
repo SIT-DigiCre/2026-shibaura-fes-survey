@@ -19,7 +19,7 @@ export interface SurveyRecord {
   q6: string;
   /** Q7 のタグ（' / ' 区切り） */
   q7: string;
-  /** Q7 の自由入力 */
+  /** スマホ版の「その他」の記入。例: '良かった理由: ○○ / ひとこと: △△' */
   text: string;
   /** GAS が受け取った日時（GAS 側で付ける） */
   received?: string;

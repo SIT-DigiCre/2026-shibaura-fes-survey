@@ -13,6 +13,14 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   await expect(page.locator('#idle')).toBeVisible();
   await expect(page.locator('#idle button')).toHaveCount(1);
   await expect(page.locator('#idle .js-total')).toHaveText('41');
+  // プレゼント告知: 画像が全部読めていて、ボタンは画面下部に落ちていない
+  await expect(page.locator('.idle-poster')).toContainText('イラストカード');
+  const broken = await page
+    .locator('.idle-poster img')
+    .evaluateAll((els) => els.filter((e) => !(e as HTMLImageElement).complete || !(e as HTMLImageElement).naturalWidth).length);
+  expect(broken).toBe(0);
+  const startBox = await page.getByRole('button', { name: 'タッチしてスタート' }).boundingBox();
+  expect(startBox!.y + startBox!.height).toBeLessThan(1400);
   await page.screenshot({ path: SHOT + 'signage-01-idle.png' });
 
   await page.getByRole('button', { name: 'タッチしてスタート' }).click();

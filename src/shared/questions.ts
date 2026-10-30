@@ -41,9 +41,14 @@ export interface Question {
   best?: boolean;
   /** 1 列で並べる */
   one?: boolean;
+  /** スマホ版だけ「その他」と記入欄を出す（サイネージは日本語入力ができないので出さない） */
+  other?: boolean;
   /** ダッシュボードの見出し */
   short: string;
 }
+
+/** 「その他」の値。記入した内容は SurveyRecord.text に入る */
+export const OTHER = 'その他';
 
 const plain = (a: string[]): Option[] => a.map((v) => ({ v, l: v }));
 
@@ -60,6 +65,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     key: 'q2',
+    other: true,
     type: 'multi',
     title: '良かった理由は？',
     hint: 'いくつでも選べます',
@@ -83,6 +89,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     key: 'q4',
+    other: true,
     type: 'multi',
     title: '部員の対応はどうでしたか？',
     hint: 'いくつでも選べます',
@@ -99,6 +106,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     key: 'q6',
+    other: true,
     type: 'single',
     title: '職業・属性を教えてください',
     hint: 'ひとつ選んでください',
@@ -117,6 +125,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     key: 'q7',
+    other: true,
     type: 'tags',
     title: '改善点・コメント（任意）',
     hint: 'あてはまるものをいくつでも',

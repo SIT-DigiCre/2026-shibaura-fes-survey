@@ -1,6 +1,6 @@
 // アンケート本体。流れ: 待ち受け → Q1〜Q7 → 送信 → お礼 5 秒 → 待ち受け
 import './style.css';
-import { QUESTIONS, GENRES, genreLabel, type Question } from '../shared/questions';
+import { QUESTIONS, GENRES, OTHER, genreLabel, type AnswerKey, type Option, type Question } from '../shared/questions';
 import { SEP, isoLocal, pad, type SurveyRecord } from '../shared/record';
 import { fit, H0, W0 } from './fit';
 import { burst, clearFlyers, fly, initFx, reducedMotion, sizeCanvas } from './fx';
@@ -50,6 +50,8 @@ interface Answers {
   q5: string | null;
   q6: string | null;
   q7: string[];
+  /** スマホ版の「その他」の記入 */
+  other: Partial<Record<AnswerKey, string>>;
 }
 const freshAns = (): Answers => ({
   q1: [],
@@ -60,6 +62,7 @@ const freshAns = (): Answers => ({
   q5: null,
   q6: null,
   q7: [],
+  other: {},
 });
 
 const st = {
@@ -118,6 +121,11 @@ function answered(q: Question) {
   $('steps').innerHTML = h;
 })();
 
+/** スマホ版は「その他」を足す */
+function optsOf(q: Question): Option[] {
+  return PHONE && q.other ? q.opts.concat([{ v: OTHER, l: OTHER }]) : q.opts;
+}
+
 function render() {
   const q = Q[st.step];
   const typ = q.type === 'single' ? 'SINGLE' : q.type === 'tags' ? 'OPTIONAL' : 'MULTI';
@@ -136,7 +144,7 @@ function render() {
     '</p><div class="opts' +
     (q.one ? ' one' : '') +
     '">';
-  for (const o of q.opts) {
+  for (const o of optsOf(q)) {
     h +=
       '<button type="button" class="o" data-act="opt" data-v="' +
       esc(o.v) +
@@ -156,7 +164,21 @@ function render() {
     h += '</span></button>';
   }
   h += '</div>';
+  if (PHONE && q.other) {
+    h +=
+      '<div class="other" id="otherBox"><label class="other-l" for="otherText">その他の内容（任意）</label>' +
+      '<textarea class="other-t" id="otherText" rows="2" maxlength="100" placeholder="自由に書いてください"></textarea></div>';
+  }
   qbody.innerHTML = h;
+  const ta = document.getElementById('otherText') as HTMLTextAreaElement | null;
+  if (ta) {
+    ta.value = st.ans.other[q.key] || '';
+    ta.addEventListener('input', () => {
+      st.ans.other[q.key] = ta.value;
+      st.lastActive = Date.now();
+    });
+    ta.addEventListener('change', () => updateChip(q.key, OTHER));
+  }
   qbody.className = '';
   void qbody.offsetWidth;
   qbody.className = 'enter';
@@ -174,6 +196,15 @@ function syncOpts() {
     els[i].classList.toggle('best', best);
     els[i].setAttribute('aria-pressed', isOn(q, v) ? 'true' : 'false');
   }
+  const box = document.getElementById('otherBox');
+  if (box) box.classList.toggle('show', isOn(q, OTHER));
+}
+
+/** 「その他」を選んだら記入欄にカーソルを置く */
+function focusOther(v: string) {
+  if (v !== OTHER || !isOn(Q[st.step], OTHER)) return;
+  const ta = document.getElementById('otherText') as HTMLTextAreaElement | null;
+  if (ta) ta.focus();
 }
 
 const canSend = () => st.reached >= LAST && st.ans.q1.length > 0 && st.mode === 'survey';
@@ -232,6 +263,7 @@ function tapOpt(el: HTMLElement) {
     }
     syncOpts();
     renderNav();
+    focusOther(v);
     return;
   }
   const a = arr(q.key) as string[];
@@ -247,6 +279,7 @@ function tapOpt(el: HTMLElement) {
   }
   syncOpts();
   renderNav();
+  focusOther(v);
 }
 
 function ensureOn(v: string, el: HTMLElement) {
@@ -306,6 +339,10 @@ function shake(el: Element | null) {
 /* ================= チップ（STOCK） ================= */
 type ChipKey = keyof Answers;
 function chipText(key: ChipKey, v: string) {
+  if (v === OTHER) {
+    const t = (st.ans.other[key as AnswerKey] || '').trim();
+    if (t) return (key === 'q7' ? '' : 'その他：') + '「' + esc(t.length > 12 ? t.slice(0, 12) + '…' : t) + '」';
+  }
   if (key === 'q1') return esc(genreLabel(v)) + (st.ans.best === v ? ' ★BEST' : '');
   if (key === 'q3') return '評価 ' + esc(v);
   if (key === 'q7') return '「' + esc(v) + '」';
@@ -393,9 +430,18 @@ function buildRecord(id: string): SurveyRecord {
     q5: a.q5 || '',
     q6: a.q6 || '',
     q7: a.q7.join(SEP),
-    // 自由入力欄はやめた（サイネージで日本語入力ができないため）。列は互換のため残す
-    text: '',
+    text: otherText(),
   };
+}
+
+/** 「その他」を選んで書いたものだけを、'良かった理由: ○○ / ひとこと: △△' の形にする */
+function otherText() {
+  const r: string[] = [];
+  for (const q of Q) {
+    const t = (st.ans.other[q.key] || '').replace(/\s+/g, ' ').trim();
+    if (q.other && t && isOn(q, OTHER)) r.push(q.short + ': ' + t);
+  }
+  return r.join(SEP);
 }
 
 function submit() {

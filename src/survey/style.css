@@ -121,8 +121,216 @@ button:focus-visible {
   height: 126px;
 }
 
+.idle-head {
+  height: 130px;
+}
+
+.idle-head .idle-logo {
+  width: 300px;
+  height: 86px;
+}
+
+/* プレゼント告知。Figma 2229:2（876x1225）の座標のまま組み、画面幅へ縮小する。
+   シアン地→#0077AA、プレートは直角＋オフセット影、マークは文字のコントラストを落とさない濃色に置き換え */
+.idle-poster {
+  position: relative;
+  height: 755px;
+  overflow: hidden;
+  background: #0077aa;
+}
+
+.ipo {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 876px;
+  height: 1225px;
+  margin-left: -438px;
+  transform: scale(0.6164);
+  transform-origin: 50% 0;
+}
+
+.ipo-mark {
+  position: absolute;
+  left: 199.37px;
+  top: 373.2px;
+  width: 478.21px;
+  height: 478.21px;
+  transform: rotate(-8.63deg) scaleX(-1);
+}
+
+.ipo-card {
+  position: absolute;
+  width: 227px;
+  height: 376px;
+}
+
+.ipo-wide {
+  width: 266px;
+}
+
+.ipo-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ipo-d6::after,
+.ipo-d8::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.ipo-d8::after {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.ipo-10ki-a {
+  left: 63.04px;
+  top: -9.83px;
+  transform: rotate(-16.75deg);
+}
+
+.ipo-10ki-b {
+  left: 36.1px;
+  top: -8.05px;
+  transform: rotate(-10.15deg);
+}
+
+.ipo-10ki-c {
+  left: 13.47px;
+  top: -6.16px;
+  transform: rotate(-6.44deg);
+}
+
+.ipo-shiba-a {
+  left: 621.34px;
+  top: 1.65px;
+  transform: rotate(7.74deg);
+}
+
+.ipo-shiba-b {
+  left: 587.64px;
+  top: -9.83px;
+  transform: rotate(10.28deg);
+}
+
+.ipo-shiba-c {
+  left: 568.22px;
+  top: -17.55px;
+  transform: rotate(15deg);
+}
+
+.ipo-o0-a {
+  left: -8.72px;
+  top: 836.4px;
+  transform: rotate(3.16deg) scaleX(-1);
+}
+
+.ipo-o0-b {
+  left: 14.63px;
+  top: 849.29px;
+  transform: rotate(7.92deg) scaleX(-1);
+}
+
+.ipo-o0-c {
+  left: 36.48px;
+  top: 864.4px;
+  transform: rotate(14deg) scaleX(-1);
+}
+
+.ipo-teru-a {
+  left: 605.54px;
+  top: 845.92px;
+  transform: rotate(-20deg) scaleX(-1);
+}
+
+.ipo-teru-b {
+  left: 635.18px;
+  top: 844.82px;
+  transform: rotate(-15.4deg) scaleX(-1);
+}
+
+.ipo-teru-c {
+  left: 656.94px;
+  top: 847.4px;
+  transform: rotate(-8deg) scaleX(-1);
+}
+
+.ipo-plate {
+  position: absolute;
+  background: #fff;
+  color: #0077aa;
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 10px 10px 0 #00b0f0;
+}
+
+.ipo-lead {
+  left: 71.09px;
+  top: 422.43px;
+  width: 480px;
+  height: 100px;
+  font-size: 40px;
+  line-height: 100px;
+}
+
+.ipo-pick {
+  left: 359.09px;
+  top: 766.43px;
+  width: 344px;
+  height: 72px;
+  font-size: 36px;
+  line-height: 72px;
+}
+
+.ipo-title {
+  position: absolute;
+  left: 146px;
+  top: 551.43px;
+  width: 658px;
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 4px 4px 0 #005577;
+}
+
+.ipo-t1,
+.ipo-t2 {
+  display: block;
+}
+
+.ipo-t1 {
+  font-size: 86px;
+  line-height: 82px;
+}
+
+.ipo-t2 {
+  font-size: 64px;
+  line-height: 102px;
+}
+
+.ipo-kern {
+  letter-spacing: -12.8px;
+}
+
+.ipo-dash {
+  position: absolute;
+  left: 142px;
+  top: 741.43px;
+  width: 666px;
+  height: 18px;
+}
+
 .idle-body {
-  padding: 96px 36px 0;
+  padding: 40px 36px 0;
   text-align: center;
 }
 
@@ -139,17 +347,9 @@ button:focus-visible {
   line-height: 62px;
 }
 
-.idle-gift {
-  margin-top: 26px;
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 36px;
-  color: #0077aa;
-}
-
 .btn-start {
   display: block;
-  margin-top: 64px;
+  margin-top: 40px;
   width: 100%;
   height: 120px;
   background: #0077aa;
@@ -1207,9 +1407,54 @@ html.is-phone .idle-title {
   line-height: 48px;
 }
 
-html.is-phone .idle-gift {
-  font-size: 18px;
-  line-height: 30px;
+html.is-phone .idle-head {
+  height: 120px;
+}
+
+/* スマホはボタンが画面外に落ちないよう、ポスターを本文の下に置く */
+html.is-phone #idle.show {
+  display: flex;
+  flex-direction: column;
+}
+
+html.is-phone .idle-poster {
+  order: 1;
+  flex: 0 0 auto;
+  height: 545px;
+}
+
+html.is-phone .ipo {
+  transform: scale(0.4452);
+}
+
+@media (min-width: 430px) {
+  html.is-phone .idle-poster {
+    height: 613px;
+  }
+
+  html.is-phone .ipo {
+    transform: scale(0.5);
+  }
+}
+
+@media (min-width: 480px) {
+  html.is-phone .idle-poster {
+    height: 674px;
+  }
+
+  html.is-phone .ipo {
+    transform: scale(0.55);
+  }
+}
+
+@media (min-width: 540px) {
+  html.is-phone .idle-poster {
+    height: 755px;
+  }
+
+  html.is-phone .ipo {
+    transform: scale(0.6164);
+  }
 }
 
 html.is-phone .btn-start {
@@ -1325,6 +1570,48 @@ html.is-phone .o .key {
 
 html.is-phone .opts {
   padding-bottom: 20px;
+}
+
+/* 「その他」の記入欄（スマホ版だけ。選んだときに開く） */
+.other {
+  display: none;
+  margin: -8px 0 20px;
+}
+
+.other.show {
+  display: block;
+}
+
+.other-l {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #4a6577;
+}
+
+.other-t {
+  display: block;
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  border: 2px solid #0077aa;
+  border-radius: 0;
+  background: #fff;
+  color: #123247;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 26px;
+  resize: vertical;
+}
+
+.other-t::placeholder {
+  color: #4a6577;
+}
+
+.other-t:focus {
+  outline: 3px solid #00b0f0;
+  outline-offset: 0;
 }
 
 html.is-phone .nav {

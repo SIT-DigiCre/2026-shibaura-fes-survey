@@ -45,6 +45,16 @@ test('スマホ版: 回答 → お礼（回答 ID は出さない）', async ({ 
 
   await page.locator('#next').tap();
   await page.locator('.o', { hasText: '感動した' }).tap();
+  // その他を選ぶと記入欄が開く
+  await expect(page.locator('#otherBox')).toBeHidden();
+  await page.locator('.o[data-v="その他"]').tap();
+  await expect(page.locator('#otherBox')).toBeVisible();
+  await expect(page.locator('#otherText')).toBeFocused();
+  await page.locator('#otherText').fill('音響が良かった');
+  await page.locator('.q-title').tap();
+  await expect(page.locator('#chips .chip[data-v="その他"]')).toContainText('音響が良かった');
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: SHOT + 'phone-02b-q2-other.png', fullPage: true });
   await page.locator('#next').tap();
   await page.locator('.o', { hasText: '良いと思う' }).tap();
   await page.locator('#next').tap();
@@ -59,6 +69,8 @@ test('スマホ版: 回答 → お礼（回答 ID は出さない）', async ({ 
   await page.locator('#next').tap();
   await expect(page.locator('.q-num')).toHaveText('Q7');
   await page.locator('.o', { hasText: 'ゲームが面白い' }).tap();
+  await page.locator('.o[data-v="その他"]').tap();
+  await page.locator('#otherText').fill('BGM の曲名を知りたい');
   await page.waitForTimeout(1000);
   await page.screenshot({ path: SHOT + 'phone-04-q7.png', fullPage: true });
   await page.locator('#next').tap();
@@ -70,6 +82,9 @@ test('スマホ版: 回答 → お礼（回答 ID は出さない）', async ({ 
   expect(received[0].src).toBe('phone');
   expect(received[0].id).toMatch(/^DC-P-[A-Z0-9]{8}$/);
   expect(received[0].best).toBe('C ゲーム展示');
+  expect(received[0].q2).toBe('感動した / その他');
+  expect(received[0].q7).toBe('ゲームが面白い / その他');
+  expect(received[0].text).toBe('良かった理由: 音響が良かった / ひとこと: BGM の曲名を知りたい');
   await page.waitForTimeout(800);
   await page.screenshot({ path: SHOT + 'phone-05-thanks.png', fullPage: true });
 
@@ -122,6 +137,13 @@ test.describe('サイネージ実機相当（タッチ・540×1920）', () => {
     await page.goto('/');
     await expect(page.locator('#idle')).toBeVisible();
     await expect(page.locator('html')).not.toHaveClass(/is-phone/);
+    // サイネージには「その他」も記入欄も出さない
+    await page.getByRole('button', { name: 'タッチしてスタート' }).tap();
+    await page.locator('.o[data-v="A"]').tap();
+    await page.locator('#next').tap();
+    await expect(page.locator('.q-num')).toHaveText('Q2');
+    await expect(page.locator('.o[data-v="その他"]')).toHaveCount(0);
+    await expect(page.locator('#otherText')).toHaveCount(0);
   });
 });
 
