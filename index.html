@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="theme-color" content="#00B0F0" />
+    <title>デジクリ評価アンケート 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- 回線が悪くても初回描画を止めないよう、print → onload で有効化 -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Silkscreen:wght@400;700&family=Noto+Sans+JP:wght@500;700;900&display=swap"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <link rel="stylesheet" href="/src/survey/style.css" />
+  </head>
+  <body>
+    <div id="vp">
+      <div id="app">
+        <!-- 待ち受け -->
+        <section id="idle" class="screen">
+          <div class="idle-band">
+            <div class="logo-hit" data-act="logo">
+              <img class="idle-logo" src="/logo-white.png" alt="デジクリ Digital Creation Circle" />
+            </div>
+          </div>
+          <div class="idle-body">
+            <p class="idle-kicker">芝浦祭 2026 ブース評価アンケート</p>
+            <h1 class="idle-title">展示の感想を<br />きかせてください</h1>
+            <p class="idle-gift">回答でイラストカードを1枚プレゼント</p>
+            <button type="button" class="btn-start" data-act="start">タッチしてスタート</button>
+            <p class="idle-count">これまでの回答 <b class="js-total">0</b> 件</p>
+          </div>
+          <div class="band-foot"></div>
+        </section>
+
+        <!-- 回答 -->
+        <section id="main" class="screen">
+          <header class="hd">
+            <div class="logo-hit hd-logo" data-act="logo">
+              <img src="/logo-white.png" alt="デジクリ Digital Creation Circle" />
+            </div>
+            <div class="present">
+              <div class="present-k">PRESENT</div>
+              <div class="present-t">回答で<br />イラストカード</div>
+            </div>
+          </header>
+          <div class="sub">
+            <div class="sub-title">芝浦祭 2026 ／ ブース評価アンケート</div>
+            <div class="sub-count">回答 <b class="js-total">0</b> 件</div>
+          </div>
+          <ol class="steps" id="steps" aria-label="進捗"></ol>
+          <div class="card" id="card">
+            <div class="card-bar"></div>
+            <div class="card-in">
+              <div id="qbody"></div>
+              <div class="nav">
+                <button type="button" id="back" class="btn-back" data-act="back">◀ もどる</button>
+                <button type="button" id="next" class="btn-next" data-act="next">つぎへ ▶</button>
+              </div>
+            </div>
+          </div>
+          <div class="stock" id="stock">
+            <div class="stock-h">
+              <div class="stock-k">YOUR ANSWERS <span id="scount">00</span></div>
+              <div class="stock-n">タッチで修正できます</div>
+            </div>
+            <p class="stock-empty">選んだ答えがチップになって<br />ここに落ちてきます</p>
+            <div id="chips"></div>
+            <div class="stock-foot"></div>
+          </div>
+        </section>
+
+        <div id="fly"></div>
+        <canvas id="fx" width="540" height="1920"></canvas>
+        <div id="scan"></div>
+
+        <!-- お礼 -->
+        <section id="thanks" class="ov" aria-live="polite">
+          <div class="idle-band ty-band"><img class="idle-logo" src="/logo-white.png" alt="デジクリ" /></div>
+          <div class="ty-body">
+            <p class="ty-k">THANK YOU!</p>
+            <p class="ty-msg">ご回答<br />ありがとうございました！</p>
+            <div class="ty-gift">
+              <div class="ty-gift-k">PRESENT FOR YOU</div>
+              <div class="ty-gift-t">イラストカードを<br />1枚プレゼント！</div>
+            </div>
+            <div class="ty-staff">
+              <p class="ty-staff-t">この画面をスタッフに見せてください</p>
+              <p class="ty-id" id="tyId"></p>
+            </div>
+            <div class="ty-bar"><i id="tyBar"></i></div>
+          </div>
+          <div class="band-foot"></div>
+        </section>
+
+        <!-- 放置警告 -->
+        <section id="warn" class="ov" role="alertdialog" aria-labelledby="warnT">
+          <div class="dlg warn-dlg">
+            <p class="dlg-k">STILL THERE?</p>
+            <p class="warn-t" id="warnT">まだ回答中ですか？</p>
+            <p class="warn-s"><b id="wc">20</b> 秒後に最初の画面に戻ります</p>
+            <button type="button" class="btn-primary" data-act="keep">回答をつづける</button>
+          </div>
+        </section>
+
+        <!-- 管理: PIN -->
+        <section id="pin" class="ov">
+          <div class="dlg pin-dlg">
+            <p class="dlg-k">ADMIN // ENTER PIN</p>
+            <div id="pdots"><i></i><i></i><i></i><i></i></div>
+            <div id="pkeys"></div>
+          </div>
+        </section>
+
+        <!-- 管理画面 -->
+        <section id="admin" class="ov"><div class="dlg admin-dlg" id="adBody"></div></section>
+      </div>
+    </div>
+    <script type="module" src="/src/survey/main.ts"></script>
+  </body>
+</html>

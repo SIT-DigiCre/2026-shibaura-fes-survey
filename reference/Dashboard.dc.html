@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>アンケート集計ダッシュボード</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Silkscreen:wght@400;700&family=Noto+Sans+JP:wght@500;700;900&display=swap">
+<style>
+body{margin:0}
+a{color:#0077AA}a:hover{color:#123247}
+</style>
+</helmet>
+<div style="min-height: 100vh; background-color: #FFFFFF; background-image: radial-gradient(#CDEEFB 1.3px, transparent 1.7px); background-size: 20px 20px; font-family: 'Noto Sans JP', sans-serif; color: #123247">
+
+  <header style="background: #00B0F0; padding: 22px 32px">
+    <div style="max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+      <img src="/_blob/97baae753832a43672d7fb9fef4a1cb6" alt="デジクリ Digital Creation Circle" style="width: 200px; height: 57px; display: block">
+      <div style="background: #FFFFFF; padding: 10px 16px; box-shadow: 5px 5px 0 #0077AA">
+        <div style="font-family: 'DotGothic16', sans-serif; font-size: 15px; color: #4A6577">芝浦祭 2026</div>
+        <h1 style="margin: 2px 0 0; font-weight: 900; font-size: 22px; line-height: 30px">ブース評価アンケート 集計</h1>
+      </div>
+      <div style="flex: 1 1 200px"></div>
+      <div style="background: #FFFFFF; padding: 10px 14px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+        <span style="font-size: 15px; color: #4A6577">最終更新 <b style="font-family: 'Silkscreen', monospace; color: #123247; font-weight: 400">14:32:08</b></span>
+        <span style="font-size: 14px; font-weight: 700; color: #0077AA; border: 2px solid #00B0F0; padding: 2px 8px">60秒ごとに自動更新</span>
+        <span style="font-size: 14px; font-weight: 700; color: #4A6577; border: 2px solid #9FDCF5; padding: 2px 8px">サンプルデータ</span>
+        <button style="height: 44px; padding: 0 16px; border: 0; background: #0077AA; color: #FFFFFF; font-family: 'Noto Sans JP', sans-serif; font-weight: 900; font-size: 16px; box-shadow: 4px 4px 0 #00B0F0; cursor: pointer">全画面表示</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1360px; margin: 0 auto; padding: 32px 32px 56px; display: flex; flex-direction: column; gap: 28px">
+
+    <section style="display: flex; flex-wrap: wrap; gap: 20px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+        <div style="flex: 1 1 240px; min-width: 0; background: #FFFFFF; border: 2px solid #00B0F0; box-shadow: 8px 8px 0 #E1F4FC; padding: 18px 22px">
+          <div style="font-size: 16px; font-weight: 700; color: #4A6577">{{k.label}}</div>
+          <div style="margin-top: 6px; display: flex; align-items: baseline; gap: 8px">
+            <span style="font-family: 'Silkscreen', monospace; font-weight: 700; font-size: 52px; line-height: 56px; color: #0077AA; text-shadow: 4px 4px 0 #BFE9FA">{{k.value}}</span>
+            <span style="font-size: 18px; color: #4A6577">{{k.unit}}</span>
+          </div>
+          <div style="margin-top: 6px; font-size: 15px; color: #4A6577">{{k.note}}</div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="display: flex; flex-wrap: wrap; gap: 20px">
+      <div style="flex: 999 1 640px; min-width: 0; background: #FFFFFF; border: 2px solid #00B0F0; box-shadow: 8px 8px 0 #E1F4FC">
+        <div style="height: 8px; background: #00B0F0"></div>
+        <div style="padding: 20px 24px 24px">
+          <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px">
+            <h2 style="margin: 0; font-weight: 900; font-size: 22px">良いと思った展示・体験</h2>
+            <div style="display: flex; gap: 18px; font-size: 15px; color: #4A6577">
+              <span style="display: flex; align-items: center; gap: 6px"><i style="width: 18px; height: 12px; background: #0077AA; display: inline-block"></i>良かった</span>
+              <span style="display: flex; align-items: center; gap: 6px"><i style="width: 18px; height: 12px; background: #00B0F0; display: inline-block"></i>★BEST</span>
+            </div>
+          </div>
+          <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px">
+            <sc-for list="{{genres}}" as="g" hint-placeholder-count="11">
+              <div style="display: flex; align-items: center; gap: 12px">
+                <div style="flex: 0 0 170px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px">
+                  <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-family: 'Silkscreen', monospace; font-size: 14px; background: #E1F4FC; color: #0077AA">{{g.key}}</span>{{g.label}}
+                </div>
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                  <div style="display: flex; align-items: center; gap: 8px"><div style="height: 16px; width: {{g.w}}%; background: #0077AA"></div><span style="font-family: 'Silkscreen', monospace; font-size: 14px">{{g.n}}</span></div>
+                  <div style="display: flex; align-items: center; gap: 8px"><div style="height: 10px; width: {{g.bw}}%; background: #00B0F0"></div><span style="font-family: 'Silkscreen', monospace; font-size: 13px; color: #4A6577">★{{g.b}}</span></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <div style="background: #FFFFFF; border: 2px solid #00B0F0; box-shadow: 8px 8px 0 #E1F4FC; padding: 20px 24px 24px">
+          <h2 style="margin: 0; font-weight: 900; font-size: 22px">ブース全体の評価</h2>
+          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px">
+            <sc-for list="{{rating}}" as="r" hint-placeholder-count="5">
+              <div style="display: flex; align-items: center; gap: 12px; font-size: 16px">
+                <span style="flex: 0 0 100px; font-weight: 700">{{r.label}}</span>
+                <div style="flex: 1; min-width: 0; height: 18px; background: #EFFAFE"><div style="height: 18px; width: {{r.w}}%; background: #0077AA"></div></div>
+                <span style="flex: 0 0 44px; text-align: right; font-family: 'Silkscreen', monospace; font-size: 15px">{{r.n}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="background: #FFFFFF; border: 2px solid #00B0F0; box-shadow: 8px 8px 0 #E1F4FC; padding: 20px 24px 20px">
+          <h2 style="margin: 0; font-weight: 900; font-size: 22px">時間帯別の回答数</h2>
+          <div style="margin-top: 18px; height: 190px; display: flex; align-items: flex-end; gap: 10px; border-bottom: 2px solid #9FDCF5">
+            <sc-for list="{{hours}}" as="h" hint-placeholder-count="8">
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%">
+                <span style="font-family: 'Silkscreen', monospace; font-size: 13px">{{h.n}}</span>
+                <div style="width: 100%; height: {{h.px}}px; background: {{h.c}}"></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 6px">
+            <sc-for list="{{hours}}" as="h" hint-placeholder-count="8">
+              <span style="flex: 1; text-align: center; font-family: 'Silkscreen', monospace; font-size: 13px; color: #4A6577">{{h.t}}</span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-wrap: wrap; gap: 20px">
+      <sc-for list="{{panels}}" as="p" hint-placeholder-count="4">
+        <div style="flex: 1 1 300px; min-width: 0; background: #FFFFFF; border: 2px solid #00B0F0; box-shadow: 8px 8px 0 #E1F4FC; padding: 20px 22px 22px">
+          <h2 style="margin: 0; font-weight: 900; font-size: 20px">{{p.title}}</h2>
+          <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px">
+            <sc-for list="{{p.rows}}" as="r" hint-placeholder-count="6">
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 15px">
+                <span style="flex: 0 0 132px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{r.label}}</span>
+                <div style="flex: 1; min-width: 0; height: 14px; background: #EFFAFE"><div style="height: 14px; width: {{r.w}}%; background: #0077AA"></div></div>
+                <span style="flex: 0 0 34px; text-align: right; font-family: 'Silkscreen', monospace; font-size: 14px">{{r.n}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="background: #FFFFFF; border: 2px solid #0077AA; box-shadow: 8px 8px 0 #E1F4FC">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 24px; background: #E1F4FC; border-bottom: 2px solid #9FDCF5">
+        <h2 style="margin: 0; font-weight: 900; font-size: 22px">コメント・データ出力</h2>
+        <span style="font-size: 15px; font-weight: 700; color: #0077AA; border: 2px solid #0077AA; padding: 2px 8px; background: #FFFFFF">合言葉で解除済み</span>
+        <div style="flex: 1 1 100px"></div>
+        <button style="height: 52px; padding: 0 22px; border: 0; background: #0077AA; color: #FFFFFF; font-family: 'Noto Sans JP', sans-serif; font-weight: 900; font-size: 18px; box-shadow: 5px 5px 0 #00B0F0; cursor: pointer">CSVをダウンロード（全128件）</button>
+        <button style="height: 52px; padding: 0 18px; border: 2px solid #0077AA; background: #FFFFFF; color: #0077AA; font-family: 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer">ロックする</button>
+      </div>
+      <div style="padding: 8px 24px 20px">
+        <sc-for list="{{comments}}" as="c" hint-placeholder-count="4">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 14px 0; border-bottom: 2px dashed #CDEEFB">
+            <span style="flex: 0 0 140px; font-family: 'Silkscreen', monospace; font-size: 14px; color: #4A6577">{{c.t}}</span>
+            <span style="flex: 0 0 auto; font-size: 14px; font-weight: 700; color: #0077AA; border: 2px solid #9FDCF5; padding: 0 8px; height: 24px; line-height: 22px">{{c.src}}</span>
+            <span style="flex: 1 1 360px; min-width: 0; font-size: 17px; line-height: 27px">{{c.text}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 18px 24px; background: #FFFFFF; border: 2px dashed #9FDCF5">
+      <span style="font-weight: 700; font-size: 16px">ロック中の表示</span>
+      <label for="dash-key" style="font-size: 15px; color: #4A6577">コメントとCSVは合言葉を入れると表示されます</label>
+      <input id="dash-key" type="password" placeholder="合言葉" style="height: 48px; width: 220px; border: 2px solid #9FDCF5; padding: 0 12px; font-size: 17px; font-family: 'Noto Sans JP', sans-serif; color: #123247; box-sizing: border-box">
+      <button style="height: 48px; padding: 0 20px; border: 0; background: #0077AA; color: #FFFFFF; font-family: 'Noto Sans JP', sans-serif; font-weight: 900; font-size: 16px; cursor: pointer">解除</button>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    function bars(list) {
+      var max = Math.max.apply(null, list.map(function (x) { return x[1]; }));
+      return list.map(function (x) { return { label: x[0], n: x[1], w: Math.round(x[1] / max * 100) }; });
+    }
+    var g = [['A','イラスト',61,14],['B','MV',38,6],['C','ゲーム展示',72,31],['D','VTuber',55,22],['E','DTM体験',49,18],['F','楽曲・映像視聴',33,5],['G','文字書き',18,2],['H','物販',41,9],['I','ライブ創作',27,8],['J','企画うちよそ',22,4],['K','その他',6,1]];
+    var genres = g.map(function (x) { return { key: x[0], label: x[1], n: x[2], b: x[3], w: Math.round(x[2] / 72 * 92), bw: Math.round(x[3] / 72 * 92) }; });
+    var hrs = [['10',5],['11',12],['12',19],['13',24],['14',28],['15',21],['16',14],['17',5]];
+    var hours = hrs.map(function (x) { return { t: x[0] + '時', n: x[1], px: Math.round(x[1] / 28 * 150), c: x[0] === '14' ? '#0077AA' : '#00B0F0' }; });
+    return {
+      kpis: [
+        { label: '総回答数', value: '128', unit: '件', note: 'サイネージ 91 ／ スマホ 37' },
+        { label: '今日の回答', value: '74', unit: '件', note: '10/31（金）' },
+        { label: 'ブース全体の評価', value: '4.41', unit: '/ 5', note: '大変良かった=5 〜 要改善=1' },
+        { label: '★BEST 1位', value: 'C', unit: 'ゲーム展示', note: '31票（BEST全体の26%）' }
+      ],
+      genres: genres,
+      hours: hours,
+      rating: bars([['大変良かった',71],['良いと思う',42],['普通',12],['微妙',2],['要改善',1]]),
+      panels: [
+        { title: '良かった理由', rows: bars([['面白かった',66],['体験できる',58],['スタッフの対応',41],['感動した',34],['目新しさ',29],['その他',4]]) },
+        { title: '部員の対応', rows: bars([['フレンドリー',63],['説明が分かりやすい',52],['丁寧な対応',47],['技量を感じる',39],['ためになった',21],['その他',3]]) },
+        { title: '年齢', rows: bars([['10代未満',3],['10代',38],['20代',52],['30代',11],['40代',14],['50代',8],['60代以上',2]]) },
+        { title: '職業・属性', rows: bars([['芝浦工大生',31],['高校生',27],['他大学の学生',22],['一般',14],['中学生',9],['OB・OG',8],['部員の保護者',7],['デジクリ部員',6],['デジクリOB・OG',4]]) }
+      ],
+      comments: [
+        { t: '10/31 14:28', src: 'サイネージ', text: '「ゲームが面白い」「また来たい！」／ リズムゲームの難易度選択があると嬉しい' },
+        { t: '10/31 14:11', src: 'スマホ', text: '「曲がカッコいい」／ MVの上映時間を貼り出してほしいです' },
+        { t: '10/31 13:52', src: 'サイネージ', text: '「少し混んでた」' },
+        { t: '10/31 13:40', src: 'サイネージ', text: '「展示が見やすかった」「もっと体験したい」／ DTM体験で自分の曲が作れて楽しかった' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

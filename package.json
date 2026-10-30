@@ -1,0 +1,31 @@
+{
+  "name": "digicre-survey",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173",
+    "lint": "eslint . && stylelint \"src/**/*.css\"",
+    "format": "prettier --write .",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6",
+    "@vitejs/plugin-legacy": "^8.2.3",
+    "autoprefixer": "^10.6.2",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "postcss": "^8.5.32",
+    "prettier": "^3.9.10",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard": "^40.0.0",
+    "terser": "^5.51.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5"
+  }
+}

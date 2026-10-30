@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>アンケート集計 | デジクリ 芝浦祭 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Silkscreen:wght@400;700&family=Noto+Sans+JP:wght@500;700;900&display=swap"
+    />
+    <link rel="stylesheet" href="/src/dashboard/style.css" />
+  </head>
+  <body>
+    <header class="hd">
+      <div class="wrap hd-in">
+        <img class="hd-logo" src="/logo-white.png" alt="デジクリ Digital Creation Circle" />
+        <div class="hd-title">
+          <div class="hd-k">芝浦祭 2026</div>
+          <h1>ブース評価アンケート 集計</h1>
+        </div>
+        <div class="spacer"></div>
+        <div class="hd-status">
+          <span class="muted">最終更新 <b class="hud" id="updated">--:--:--</b></span>
+          <span class="badge">60秒ごとに自動更新</span>
+          <span class="badge sub" id="demoBadge" hidden>サンプルデータ</span>
+          <button type="button" class="btn sm" id="fs">全画面表示</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap main">
+      <p class="notice" id="notice" role="status" hidden></p>
+
+      <section class="row" id="kpis" aria-label="主な数値"></section>
+
+      <section class="row">
+        <div class="panel grow">
+          <div class="panel-bar"></div>
+          <div class="panel-in">
+            <div class="panel-h">
+              <h2>良いと思った展示・体験</h2>
+              <div class="legend">
+                <span><i class="sw deep"></i>良かった</span>
+                <span><i class="sw cyan"></i>★BEST</span>
+              </div>
+            </div>
+            <div class="genres" id="genres"></div>
+          </div>
+        </div>
+        <div class="col side">
+          <div class="panel panel-in">
+            <h2>ブース全体の評価</h2>
+            <div class="bars" id="rating"></div>
+          </div>
+          <div class="panel panel-in">
+            <h2>時間帯別の回答数</h2>
+            <div class="hours" id="hours"></div>
+            <div class="hours-x" id="hoursX"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row" id="panels"></section>
+
+      <section class="export" id="export" hidden>
+        <div class="export-h">
+          <h2>コメント・データ出力</h2>
+          <span class="badge solid">合言葉で解除済み</span>
+          <div class="spacer"></div>
+          <button type="button" class="btn" id="csv">CSVをダウンロード</button>
+          <button type="button" class="btn ghost" id="lock">ロックする</button>
+        </div>
+        <div class="comments" id="comments"></div>
+      </section>
+
+      <form class="locked" id="locked">
+        <span class="locked-t">コメント・データ出力（ロック中）</span>
+        <label for="dash-key" class="muted">コメントとCSVは合言葉を入れると表示されます</label>
+        <input id="dash-key" type="password" placeholder="合言葉" autocomplete="off" />
+        <button type="submit" class="btn">解除</button>
+        <span class="err" id="keyErr" role="alert"></span>
+      </form>
+    </main>
+    <script type="module" src="/src/dashboard/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "selector-class-pattern": null,
+    "selector-id-pattern": null,
+    "keyframes-name-pattern": null,
+    "no-descending-specificity": null,
+    "color-function-notation": null,
+    "color-function-alias-notation": null,
+    "alpha-value-notation": null,
+    "media-feature-range-notation": null,
+    "property-no-vendor-prefix": null,
+    "value-no-vendor-prefix": null,
+    "declaration-block-single-line-max-declarations": null,
+    "font-family-name-quotes": null,
+    "import-notation": null,
+    "color-hex-length": null
+  },
+  "overrides": [
+    {
+      "files": ["src/survey/**/*.css"],
+      "rules": {
+        "property-disallowed-list": [
+          ["/^grid/", "gap", "row-gap", "column-gap", "inset", "inset-block", "inset-inline", "aspect-ratio"],
+          {
+            "message": "サイネージ（Chromium 53）では使えません: %s"
+          }
+        ],
+        "declaration-property-value-disallowed-list": [
+          {
+            "display": ["/grid/"]
+          },
+          {
+            "message": "サイネージ（Chromium 53）では display:grid は使えません"
+          }
+        ],
+        "function-disallowed-list": [
+          ["clamp", "min", "max"],
+          {
+            "message": "サイネージ（Chromium 53）では使えません: %s()"
+          }
+        ],
+        "unit-disallowed-list": [
+          ["svh", "dvh", "lvh", "svw", "dvw", "lvw"],
+          {
+            "message": "サイネージ（Chromium 53）では使えません: %s"
+          }
+        ],
+        "selector-pseudo-class-disallowed-list": [
+          ["has", "is", "where"],
+          {
+            "message": "サイネージ（Chromium 53）では使えません: :%s"
+          }
+        ],
+        "selector-nested-pattern": null,
+        "max-nesting-depth": [
+          0,
+          {
+            "message": "CSS ネストは変換されないので使えません"
+          }
+        ]
+      }
+    }
+  ]
+}
