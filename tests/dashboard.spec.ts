@@ -12,7 +12,7 @@ for (const w of [1440, 390]) {
     await expect(page.locator('#demoBadge')).toBeVisible();
     await expect(page.locator('.kpi')).toHaveCount(4);
     await expect(page.locator('.kpi').first()).toContainText('128');
-    await expect(page.locator('.genre')).toHaveCount(11);
+    await expect(page.locator('.genre')).toHaveCount(10);
     await expect(page.locator('#export')).toBeHidden();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
     await page.screenshot({ path: SHOT + `dashboard-${w}-locked.png`, fullPage: true });

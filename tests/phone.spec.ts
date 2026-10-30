@@ -35,13 +35,16 @@ test('スマホ版: 回答 → お礼に「スタッフに見せて」＋回答 
   await page.locator('.o', { hasText: '感動した' }).tap();
   await page.locator('#next').tap();
   await page.locator('.o', { hasText: '良いと思う' }).tap();
+  await page.locator('#next').tap();
   await expect(page.locator('.q-num')).toHaveText('Q4');
   await page.locator('#next').tap();
-  await page.locator('.o', { hasText: '10代' }).first().tap();
+  await page.getByRole('button', { name: '10代', exact: true }).tap();
+  await page.locator('#next').tap();
   await expect(page.locator('.q-num')).toHaveText('Q6');
   await page.waitForTimeout(300);
   await page.screenshot({ path: SHOT + 'phone-03-q6.png', fullPage: true });
   await page.getByRole('button', { name: '高校生', exact: true }).tap();
+  await page.locator('#next').tap();
   await expect(page.locator('.q-num')).toHaveText('Q7');
   await page.locator('.o', { hasText: 'ゲームが面白い' }).tap();
   await page.waitForTimeout(1000);

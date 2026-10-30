@@ -10,7 +10,6 @@ export const GENRES: ReadonlyArray<readonly [code: string, label: string]> = [
   ['H', '物販'],
   ['I', 'ライブ創作'],
   ['J', '企画うちよそ'],
-  ['K', 'その他'],
 ];
 
 export function genreName(code: string): string {
@@ -64,14 +63,7 @@ export const QUESTIONS: Question[] = [
     type: 'multi',
     title: '良かった理由は？',
     hint: 'いくつでも選べます',
-    opts: plain([
-      '感動した',
-      '体験できるのが良かった',
-      '面白かった',
-      '目新しさがあった',
-      'スタッフの対応が良かった',
-      'その他',
-    ]),
+    opts: plain(['感動した', '体験できるのが良かった', '面白かった', '目新しさがあった', 'スタッフの対応が良かった']),
     short: '良かった理由',
   },
   {
@@ -94,7 +86,7 @@ export const QUESTIONS: Question[] = [
     type: 'multi',
     title: '部員の対応はどうでしたか？',
     hint: 'いくつでも選べます',
-    opts: plain(['フレンドリー', '説明が分かりやすい', '丁寧な対応', 'ためになった', '技量を感じる', 'その他']),
+    opts: plain(['フレンドリー', '説明が分かりやすい', '丁寧な対応', 'ためになった', '技量を感じる']),
     short: '部員の対応',
   },
   {
@@ -127,7 +119,7 @@ export const QUESTIONS: Question[] = [
     key: 'q7',
     type: 'tags',
     title: '改善点・コメント（任意）',
-    hint: 'タップで一言を追加。自由入力もできます',
+    hint: 'あてはまるものをいくつでも',
     opts: plain([
       '展示が見やすかった',
       '曲がカッコいい',

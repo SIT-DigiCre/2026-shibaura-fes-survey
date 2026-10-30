@@ -49,7 +49,6 @@ interface Answers {
   q5: string | null;
   q6: string | null;
   q7: string[];
-  text: string;
 }
 const freshAns = (): Answers => ({
   q1: [],
@@ -60,7 +59,6 @@ const freshAns = (): Answers => ({
   q5: null,
   q6: null,
   q7: [],
-  text: '',
 });
 
 const st = {
@@ -70,7 +68,6 @@ const st = {
   ans: freshAns(),
   lastActive: Date.now(),
   warnLeft: 0,
-  advT: 0,
   lastTapEl: null as HTMLElement | null,
   lastTapT: 0,
 };
@@ -111,7 +108,6 @@ function isOn(q: Question, v: string) {
 }
 function answered(q: Question) {
   const a = arr(q.key);
-  if (q.type === 'tags') return (a as string[]).length > 0 || !!st.ans.text;
   return a ? a.length > 0 : !!st.ans[q.key];
 }
 
@@ -159,16 +155,7 @@ function render() {
     h += '</span></button>';
   }
   h += '</div>';
-  if (q.type === 'tags')
-    h +=
-      '<textarea class="cm" id="cm" maxlength="200" placeholder="自由入力（タッチするとキーボードが出ます）"></textarea>';
   qbody.innerHTML = h;
-  const cm = document.getElementById('cm') as HTMLTextAreaElement | null;
-  if (cm) {
-    cm.value = st.ans.text;
-    // ソフトキーボードの入力はタッチイベントにならないので、ここで放置タイマーを延ばす
-    cm.addEventListener('input', () => (st.lastActive = Date.now()));
-  }
   qbody.className = '';
   void qbody.offsetWidth;
   qbody.className = 'enter';
@@ -244,11 +231,6 @@ function tapOpt(el: HTMLElement) {
     }
     syncOpts();
     renderNav();
-    clearTimeout(st.advT);
-    const s = st.step;
-    st.advT = window.setTimeout(() => {
-      if (st.step === s && st.mode === 'survey') go(1);
-    }, 430);
     return;
   }
   const a = arr(q.key) as string[];
@@ -293,21 +275,7 @@ function longPressOpt(el: HTMLElement) {
   }
 }
 
-// noFly: 送信の直前は飛ばさずに置く（飛行中にはじけて演出がずれるため）
-function captureText(noFly?: boolean) {
-  const cm = document.getElementById('cm') as HTMLTextAreaElement | null;
-  if (!cm) return;
-  cm.blur();
-  const t = cm.value.replace(/^\s+|\s+$/g, '');
-  if (t === st.ans.text) return;
-  const had = !!st.ans.text;
-  st.ans.text = t;
-  if (had && !t) removeChip('text', '1');
-  else if (!had && t) addChip('text', '1', noFly ? null : cm);
-}
-
 function go(d: number) {
-  clearTimeout(st.advT);
   const q = Q[st.step];
   if (d > 0 && st.step === LAST) return;
   if (d > 0 && q.required && !answered(q)) {
@@ -316,7 +284,6 @@ function go(d: number) {
     sErr();
     return;
   }
-  captureText();
   st.step = Math.max(0, Math.min(LAST, st.step + d));
   if (st.step > st.reached) st.reached = st.step;
   st.lastTapEl = null;
@@ -324,8 +291,6 @@ function go(d: number) {
   render();
 }
 function jump(s: number) {
-  clearTimeout(st.advT);
-  captureText();
   st.step = s;
   st.lastTapEl = null;
   render();
@@ -338,16 +303,15 @@ function shake(el: Element | null) {
 }
 
 /* ================= チップ（STOCK） ================= */
-type ChipKey = keyof Answers | 'text';
+type ChipKey = keyof Answers;
 function chipText(key: ChipKey, v: string) {
   if (key === 'q1') return esc(genreLabel(v)) + (st.ans.best === v ? ' ★BEST' : '');
   if (key === 'q3') return '評価 ' + esc(v);
   if (key === 'q7') return '「' + esc(v) + '」';
-  if (key === 'text') return '✎ 自由コメント';
   return esc(v);
 }
-const chipTag = (key: ChipKey) => (key === 'text' ? 'Q7' : key.toUpperCase());
-const chipStep = (key: ChipKey) => (key === 'text' ? LAST : parseInt(key.slice(1), 10) - 1);
+const chipTag = (key: ChipKey) => key.toUpperCase();
+const chipStep = (key: ChipKey) => parseInt(key.slice(1), 10) - 1;
 
 function findChip(key: ChipKey, v: string): HTMLElement | null {
   const cs = chipsEl.children;
@@ -428,7 +392,8 @@ function buildRecord(id: string): SurveyRecord {
     q5: a.q5 || '',
     q6: a.q6 || '',
     q7: a.q7.join(SEP),
-    text: a.text,
+    // 自由入力欄はやめた（サイネージで日本語入力ができないため）。列は互換のため残す
+    text: '',
   };
 }
 
@@ -440,7 +405,6 @@ function submit() {
     }
     return;
   }
-  captureText(true);
   const rec = buildRecord(newId(PHONE));
   if (!saveRecord(rec)) {
     // 保存できなかったときはお礼を出さない（回答はそのまま残す）
@@ -495,7 +459,6 @@ function showThanks() {
 }
 
 function resetAll() {
-  clearTimeout(st.advT);
   st.mode = 'idle';
   st.ans = freshAns();
   st.step = 0;
@@ -517,7 +480,7 @@ function resetAll() {
 
 /* ================= 放置対策（サイネージのみ） ================= */
 function dirty() {
-  return st.step > 0 || liveChips().length > 0 || !!st.ans.text;
+  return st.step > 0 || liveChips().length > 0;
 }
 if (!PHONE) {
   setInterval(() => {
@@ -526,8 +489,6 @@ if (!PHONE) {
         resetAll(); // 何も選ばずに離れた人は黙って待ち受けへ
         return;
       }
-      const cm = document.getElementById('cm');
-      if (cm) cm.blur();
       st.mode = 'warn';
       st.warnLeft = CFG.WARN_SEC;
       $('wc').textContent = String(st.warnLeft);

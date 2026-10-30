@@ -9,17 +9,6 @@ function rng(seed: number) {
   };
 }
 
-const COMMENTS = [
-  'リズムゲームの難易度選択があると嬉しい',
-  'MVの上映時間を貼り出してほしいです',
-  'DTM体験で自分の曲が作れて楽しかった',
-  'イラストのポストカードがかわいい！',
-  'VTuberの配信体験が面白かった',
-  '',
-  '',
-  '',
-];
-
 // 日付は芝浦祭の 2 日間に固定（「今日の回答」は 2 日目として表示する）
 export const DEMO_DAYS = ['2026-10-31', '2026-11-01'];
 
@@ -27,7 +16,7 @@ export function demoRows(): SurveyRecord[] {
   const r = rng(2026);
   const pick = <T>(a: readonly T[]) => a[Math.floor(r() * a.length)];
   // 人気の偏り（ゲーム展示・イラスト・VTuber が多め）
-  const gw = [61, 38, 72, 55, 49, 33, 18, 41, 27, 22, 6];
+  const gw = [61, 38, 72, 55, 49, 33, 18, 41, 27, 22];
   const hw = [5, 12, 19, 24, 28, 21, 14, 5];
   const rows: SurveyRecord[] = [];
   const days = DEMO_DAYS.map((s) => new Date(s + 'T00:00:00'));
@@ -46,7 +35,7 @@ export function demoRows(): SurveyRecord[] {
       if (!q1.length) q1.push(pick(['A', 'C', 'D']));
       const best = r() < 0.9 ? q1[Math.floor(r() * q1.length)] : '';
       const opts = (k: number) => QUESTIONS[k].opts.map((o) => o.v);
-      const multi = (k: number, p: number) => opts(k).filter((v) => v !== 'その他' && r() < p);
+      const multi = (k: number, p: number) => opts(k).filter(() => r() < p);
       const phone = r() < 0.29;
       const tags = opts(6).filter(() => r() < 0.18);
       const rating = pick(['大変良かった', '大変良かった', '大変良かった', '良いと思う', '良いと思う', '普通', '微妙']);
@@ -64,7 +53,7 @@ export function demoRows(): SurveyRecord[] {
         q5: pick(['10代', '10代', '20代', '20代', '20代', '30代', '40代', '50代', '10代未満', '60代以上']),
         q6: pick(opts(5)),
         q7: tags.join(SEP),
-        text: pick(COMMENTS),
+        text: '',
         received: isoLocal(t),
       });
     }

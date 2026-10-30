@@ -25,6 +25,9 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   await page.locator('#next').click();
   await expect(page.locator('.q-num')).toHaveText('Q1');
 
+  // 「その他」はない
+  await expect(page.locator('.o')).toHaveCount(10);
+  await expect(page.locator('.o', { hasText: 'その他' })).toHaveCount(0);
   const opt = (v: string) => page.locator('.o[data-v="' + v + '"]');
   await opt('A').click();
   await page.waitForTimeout(400);
@@ -58,27 +61,36 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   await page.locator('.o', { hasText: '体験できるのが良かった' }).click();
   await page.locator('#next').click();
 
-  // 単一選択は選ぶと自動で次へ
+  // 単一選択も、選んだだけでは次へ進まない（「つぎへ」で進む）
   await expect(page.locator('.q-num')).toHaveText('Q3');
   await page.waitForTimeout(300);
   await page.screenshot({ path: SHOT + 'signage-04-q3.png' });
   await page.locator('.o', { hasText: '大変良かった' }).click();
+  await page.waitForTimeout(800);
+  await expect(page.locator('.q-num')).toHaveText('Q3');
+  await expect(page.locator('#next')).toHaveText('つぎへ ▶');
+  // 選び直せる
+  await page.locator('.o', { hasText: '良いと思う' }).click();
+  await page.locator('.o', { hasText: '大変良かった' }).click();
+  await expect(page.locator('#chips .chip[data-k="q3"]:not(.out)')).toHaveCount(1);
+  await page.locator('#next').click();
   await expect(page.locator('.q-num')).toHaveText('Q4');
   await page.locator('.o', { hasText: 'フレンドリー' }).click();
   await page.locator('#next').click();
   await expect(page.locator('.q-num')).toHaveText('Q5');
   await page.locator('.o', { hasText: '20代' }).click();
+  await page.locator('#next').click();
   await expect(page.locator('.q-num')).toHaveText('Q6');
   await page.waitForTimeout(300);
   await page.screenshot({ path: SHOT + 'signage-05-q6.png' });
   await page.locator('.o', { hasText: '他大学の学生' }).click();
+  await page.locator('#next').click();
   await expect(page.locator('.q-num')).toHaveText('Q7');
 
-  // Q7: 送信ボタンは設問カードの中
+  // Q7: 送信ボタンは設問カードの中。文字を入力する欄・「その他」はない
   await expect(page.locator('#card #next')).toHaveText('送信する');
+  await expect(page.locator('textarea, input')).toHaveCount(0);
   await page.locator('.o', { hasText: 'また来たい！' }).click();
-  await page.locator('#cm').fill('DTM体験が楽しかった');
-  await page.locator('.q-title').click(); // キーボードを閉じる
   await page.waitForTimeout(1200);
   await page.screenshot({ path: SHOT + 'signage-06-q7.png' });
 
@@ -107,7 +119,7 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   expect(r.q5).toBe('20代');
   expect(r.q6).toBe('他大学の学生');
   expect(r.q7).toBe('また来たい！');
-  expect(r.text).toBe('DTM体験が楽しかった');
+  expect(r.text).toBe('');
 
   // 5 秒で待ち受けへ
   await expect(page.locator('#idle')).toBeVisible({ timeout: 8000 });
@@ -194,6 +206,19 @@ test('タッチで全画面になり、管理画面で OFF にできる', async 
   await page.waitForTimeout(300);
   expect(await page.evaluate(() => !!document.fullscreenElement)).toBe(false);
   expect(errors).toEqual([]);
+});
+
+test('ホーム画面に追加すると全画面で起動するマニフェスト', async ({ page, request }) => {
+  await page.goto('/');
+  const href = await page.locator('link[rel="manifest"]').getAttribute('href');
+  const res = await request.get(new URL(href as string, page.url()).toString());
+  expect(res.ok()).toBe(true);
+  const m = await res.json();
+  expect(m.display).toBe('fullscreen');
+  expect(m.orientation).toBe('portrait');
+  for (const i of m.icons) {
+    expect((await request.get(new URL(i.src, res.url()).toString())).ok()).toBe(true);
+  }
 });
 
 test('管理画面: ロゴ 5 回 → PIN 2026', async ({ page }) => {

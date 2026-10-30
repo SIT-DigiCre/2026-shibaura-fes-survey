@@ -53,8 +53,6 @@ export function initAdmin(c: Ctx) {
 export function openPin() {
   const m = ctx.getMode();
   if (m !== 'idle' && m !== 'survey' && m !== 'warn') return;
-  const cm = document.getElementById('cm');
-  if (cm) cm.blur();
   ctx.closeWarn();
   from = ctx.getMode();
   ctx.setMode('pin');
