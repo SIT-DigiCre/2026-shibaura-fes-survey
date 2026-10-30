@@ -112,3 +112,16 @@ test('ダッシュボード: GAS から取得し、合言葉が違えばロッ�
   expect(keys).toContain('secret');
   expect(errors).toEqual([]);
 });
+
+test('ダッシュボード: /dashboard（末尾 / なし）でもダッシュボードが PC 表示で開く', async ({ page }) => {
+  const errors = collectErrors(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto('/dashboard?demo=1');
+  await expect(page).toHaveURL(/\/dashboard\/\?demo=1$/);
+  await expect(page.locator('.kpi')).toHaveCount(4);
+  await expect(page.locator('html')).not.toHaveClass(/is-phone/);
+  // KPI が横 1 列に並ぶ（スマホ幅だと縦積み）
+  const tops = await page.locator('.kpi').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().top));
+  expect(new Set(tops).size).toBe(1);
+  expect(errors).toEqual([]);
+});

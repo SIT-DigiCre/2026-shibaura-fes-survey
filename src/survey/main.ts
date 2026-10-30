@@ -417,8 +417,6 @@ function submit() {
   }
   st.mode = 'sending';
   nextEl.classList.add('fired');
-  // 受付 ID はスマホ版だけ（スタッフに見せる用）。サイネージには出さない
-  $('tyId').textContent = PHONE ? rec.id : '';
   flush(renderTotal);
   renderTotal();
 
@@ -455,7 +453,7 @@ function showThanks() {
   $('thanks').className = 'ov show';
   if (PHONE) window.scrollTo(0, 0);
   sThanks();
-  // スマホ版はスタッフに見せるため、お礼画面のまま止める
+  // スマホ版は待ち受けに戻す必要がないので、お礼画面のまま止める
   if (!PHONE) setTimeout(resetAll, CFG.THANKS_MS);
 }
 

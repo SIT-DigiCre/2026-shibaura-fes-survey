@@ -1,14 +1,21 @@
 import { test, expect } from '@playwright/test';
 import { SHOT, collectErrors, fontsReady, mockGas } from './helpers';
 
+// 実機に合わせて UA も Android にする（PC の UA だと自動ではスマホ版にならない）
+const ANDROID_UA =
+  'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36';
+const SIGNAGE_UA =
+  'Mozilla/5.0 (Linux; Android 7.1.2; LG Signage) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.83 Safari/537.36';
+
 test.use({
+  userAgent: ANDROID_UA,
   viewport: { width: 390, height: 844 },
   screen: { width: 390, height: 844 },
   hasTouch: true,
   isMobile: true,
 });
 
-test('スマホ版: 回答 → お礼に「スタッフに見せて」＋回答 ID', async ({ page }) => {
+test('スマホ版: 回答 → お礼（回答 ID は出さない）', async ({ page }) => {
   const errors = collectErrors(page);
   const received = await mockGas(page, { count: 41 });
   await page.goto('/?m=phone');
@@ -57,17 +64,16 @@ test('スマホ版: 回答 → お礼に「スタッフに見せて」＋回答 
   await page.locator('#next').tap();
 
   await expect(page.locator('#thanks')).toBeVisible({ timeout: 5000 });
-  await expect(page.locator('.ty-staff')).toBeVisible();
-  await expect(page.locator('.ty-staff')).toContainText('スタッフに見せて');
-  await expect(page.locator('#tyId')).toHaveText(/^DC-P-[A-Z0-9]{8}$/);
+  await expect(page.locator('#thanks')).not.toContainText('スタッフ');
+  await expect(page.locator('#thanks')).not.toContainText('DC-P-');
   await expect.poll(() => received.length).toBe(1);
   expect(received[0].src).toBe('phone');
-  expect(received[0].id).toBe(await page.locator('#tyId').textContent());
+  expect(received[0].id).toMatch(/^DC-P-[A-Z0-9]{8}$/);
   expect(received[0].best).toBe('C ゲーム展示');
   await page.waitForTimeout(800);
   await page.screenshot({ path: SHOT + 'phone-05-thanks.png', fullPage: true });
 
-  // スマホ版はお礼画面のまま（スタッフに見せるため）
+  // スマホ版はお礼画面のまま
   await page.waitForTimeout(6000);
   await expect(page.locator('#thanks')).toBeVisible();
   expect(errors).toEqual([]);
@@ -105,12 +111,30 @@ test('?m=signage を付けると、その端末はスマホ幅でもサイネー
 
 test.describe('サイネージ実機相当（タッチ・540×1920）', () => {
   test.use({
+    userAgent: SIGNAGE_UA,
     viewport: { width: 540, height: 1920 },
     screen: { width: 540, height: 1920 },
     hasTouch: true,
     isMobile: true,
   });
   test('/ はサイネージ版のまま', async ({ page }) => {
+    await mockGas(page);
+    await page.goto('/');
+    await expect(page.locator('#idle')).toBeVisible();
+    await expect(page.locator('html')).not.toHaveClass(/is-phone/);
+  });
+});
+
+test.describe('タッチ対応の PC（表示倍率 200%）', () => {
+  test.use({
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    viewport: { width: 960, height: 540 },
+    screen: { width: 960, height: 540 },
+    hasTouch: true,
+    isMobile: false,
+  });
+  test('/ はスマホ版にならない', async ({ page }) => {
     await mockGas(page);
     await page.goto('/');
     await expect(page.locator('#idle')).toBeVisible();

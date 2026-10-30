@@ -103,7 +103,7 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   await page.locator('#next').click();
   await expect(page.locator('#thanks')).toBeVisible({ timeout: 5000 });
   await expect(page.locator('#thanks')).not.toContainText('DC-');
-  await expect(page.locator('.ty-staff')).toBeHidden();
+  await expect(page.locator('#thanks')).not.toContainText('DC-');
   await page.waitForTimeout(1200);
   await page.screenshot({ path: SHOT + 'signage-07-thanks.png' });
 

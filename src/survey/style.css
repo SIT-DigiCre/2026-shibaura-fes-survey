@@ -933,10 +933,6 @@ button:focus-visible {
   line-height: 52px;
 }
 
-.ty-staff {
-  display: none;
-}
-
 .ty-bar {
   width: 300px;
   height: 8px;
@@ -1401,31 +1397,6 @@ html.is-phone .ty-gift {
 html.is-phone .ty-gift-t {
   font-size: 26px;
   line-height: 38px;
-}
-
-html.is-phone .ty-staff {
-  display: block;
-  margin-top: 32px;
-  padding: 20px 16px;
-  background: #effafe;
-  border: 2px solid #0077aa;
-}
-
-html.is-phone .ty-staff-t {
-  font-weight: 900;
-  font-size: 18px;
-  line-height: 28px;
-}
-
-html.is-phone .ty-id {
-  margin-top: 10px;
-  font-family: var(--f-hud);
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 32px;
-  letter-spacing: 1px;
-  color: #0077aa;
-  word-break: break-all;
 }
 
 html.is-phone .ty-bar {
