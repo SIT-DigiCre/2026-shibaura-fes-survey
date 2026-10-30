@@ -125,3 +125,15 @@ test('ダッシュボード: /dashboard（末尾 / なし）でもダッシュ�
   expect(new Set(tops).size).toBe(1);
   expect(errors).toEqual([]);
 });
+
+for (const w of [1093, 853]) {
+  test(`ダッシュボード: PC で表示倍率を上げても（${w} 幅）横並びのまま`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: 800 });
+    await page.goto('/dashboard/?demo=1');
+    await expect(page.locator('.kpi')).toHaveCount(4);
+    const top = (sel: string) => page.locator(sel).evaluate((e) => Math.round(e.getBoundingClientRect().top));
+    // 「良いと思った展示・体験」と右の列が同じ高さに並ぶ
+    expect(await top('.panel.grow')).toBe(await top('.side'));
+    await page.screenshot({ path: SHOT + `dashboard-${w}-locked.png`, fullPage: true });
+  });
+}

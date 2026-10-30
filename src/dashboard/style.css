@@ -174,7 +174,8 @@ input:focus-visible {
   color: var(--ink);
 }
 
-/* ---------- 本体 ---------- */
+/* ---------- 本体 ----------
+   PC は表示倍率を上げても（幅 850px 程度まで）横並びを保つ。縦一列になるのはスマホ幅（600px 以下）だけ */
 .main {
   padding: 32px 32px 56px;
   display: flex;
@@ -219,16 +220,16 @@ input:focus-visible {
 }
 
 .panel.grow {
-  flex: 999 1 640px;
+  flex: 999 1 440px;
 }
 
 .side {
-  flex: 1 1 380px;
+  flex: 1 1 300px;
   min-width: 0;
 }
 
 .panel.small {
-  flex: 1 1 300px;
+  flex: 1 1 260px;
   padding: 20px 22px 22px;
 }
 
@@ -273,7 +274,7 @@ input:focus-visible {
 
 /* KPI */
 .kpi {
-  flex: 1 1 240px;
+  flex: 1 1 200px;
   padding: 18px 22px;
 }
 
