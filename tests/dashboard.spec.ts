@@ -45,22 +45,37 @@ for (const w of [1440, 390]) {
   });
 }
 
-test('ダッシュボード: 印刷・PDF 保存', async ({ page }) => {
+test('ダッシュボード: PNG 保存', async ({ page }) => {
+  const errors = collectErrors(page);
+  // スマホ幅から保存しても、同じ幅の PC レイアウトになる
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/dashboard/?demo=1');
+  await expect(page.locator('.kpi')).toHaveCount(4);
+  await fontsReady(page);
+  // コメントが載らないことを確かめるため、解除しておく
+  await page.locator('#dash-key').fill('demo');
+  await page.getByRole('button', { name: '解除' }).click();
+  await expect(page.locator('#export')).toBeVisible();
+
+  const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#png').click()]);
+  expect(download.suggestedFilename()).toMatch(/^デジクリアンケート集計_\d{8}_\d{4}\.png$/);
+  const path = SHOT + 'dashboard-save.png';
+  await download.saveAs(path);
+  const png = readFileSync(path);
+  expect(png.subarray(1, 4).toString()).toBe('PNG');
+  expect(png.readUInt32BE(16)).toBe(1440 * 2);
+  await expect(page.locator('#png')).toHaveText('PNGで保存');
+  await expect(page.locator('#png')).toBeEnabled();
+  expect(errors).toEqual([]);
+});
+
+test('ダッシュボード: 印刷（Ctrl+P）', async ({ page }) => {
   const errors = collectErrors(page);
   // A4 縦の印字幅（余白 10mm）
   await page.setViewportSize({ width: 718, height: 1046 });
   await page.goto('/dashboard/?demo=1');
   await expect(page.locator('.kpi')).toHaveCount(4);
   await fontsReady(page);
-  await page.evaluate(() => {
-    const w = window as unknown as { printed: number };
-    w.printed = 0;
-    window.print = () => {
-      w.printed++;
-    };
-  });
-  await page.locator('#print').click();
-  expect(await page.evaluate(() => (window as unknown as { printed: number }).printed)).toBe(1);
 
   const beforePrint = () => page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
   const afterPrint = () => page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
@@ -69,7 +84,7 @@ test('ダッシュボード: 印刷・PDF 保存', async ({ page }) => {
   await beforePrint();
   await page.emulateMedia({ media: 'print' });
   await expect(page).toHaveTitle(/^デジクリアンケート集計_\d{8}_\d{4}$/);
-  for (const sel of ['#print', '#fs', '#locked', '#notice']) await expect(page.locator(sel)).toBeHidden();
+  for (const sel of ['#png', '#fs', '#locked', '#notice']) await expect(page.locator(sel)).toBeHidden();
   await expect(page.locator('#export')).toBeHidden();
   await expect(page.locator('#printedAt')).toBeVisible();
   await expect(page.locator('#demoBadge')).toBeVisible();
@@ -81,7 +96,7 @@ test('ダッシュボード: 印刷・PDF 保存', async ({ page }) => {
   await afterPrint();
   await page.emulateMedia({ media: 'screen' });
   await expect(page).toHaveTitle(/^アンケート集計/);
-  await expect(page.locator('#print')).toBeVisible();
+  await expect(page.locator('#png')).toBeVisible();
 
   // 解除中でもコメントは載らない
   await page.locator('#dash-key').fill('demo');

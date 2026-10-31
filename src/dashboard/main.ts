@@ -8,6 +8,8 @@ const DEMO = /[?&]demo=1(&|$)/.test(location.search);
 const REFRESH_MS = 60000;
 const COMMENTS_STEP = 20;
 const KEY_STORE = 'digicre_dash_key';
+const FILE_NAME = 'デジクリアンケート集計';
+const PNG_WIDTH = 1440;
 
 const $ = (id: string) => document.getElementById(id) as HTMLElement;
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => '&#' + c.charCodeAt(0) + ';');
@@ -199,6 +201,55 @@ function render() {
   }
 }
 
+/* ================= PNG 保存 ================= */
+/**
+ * 画面を PNG にして保存する。どの端末でも同じ幅の横長レイアウトで、載せるものは印刷と同じ（操作部・コメントは載せない）。
+ * html2canvas は押したときにだけ読み込む。
+ */
+async function savePng() {
+  const btn = $('png') as HTMLButtonElement;
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '作成中…';
+  try {
+    const { default: html2canvas } = await import('html2canvas');
+    const canvas = await html2canvas(document.documentElement, {
+      backgroundColor: '#fff',
+      scale: 2,
+      windowWidth: PNG_WIDTH,
+      windowHeight: 800,
+      scrollX: 0,
+      scrollY: 0,
+      logging: false,
+      ignoreElements: (el) => el.classList.contains('no-print'),
+      onclone: (doc) => {
+        const at = doc.getElementById('printedAt') as HTMLElement;
+        at.textContent = new Date().toLocaleString('ja-JP');
+        (at.parentElement as HTMLElement).style.display = 'inline';
+        // 画像ではホバーで全文を読めないので、項目名は省略せず折り返す
+        const style = doc.createElement('style');
+        style.textContent = '.bar-l { overflow: visible; white-space: normal; }';
+        doc.head.appendChild(style);
+      },
+    });
+    const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, 'image/png'));
+    if (!blob) throw new Error('toBlob');
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = FILE_NAME + '_' + fileStamp() + '.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } catch {
+    notice('PNGを保存できませんでした。もう一度お試しください。');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+}
+
 /* ================= 操作 ================= */
 $('locked').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -229,12 +280,12 @@ $('comments').addEventListener('click', (e) => {
 $('csv').addEventListener('click', () => {
   if (auth) downloadCsv(rows);
 });
-$('print').addEventListener('click', () => window.print());
+$('png').addEventListener('click', savePng);
 // Ctrl+P でも同じ内容になるよう beforeprint で整える。title は PDF の既定のファイル名になる
 const pageTitle = document.title;
 window.addEventListener('beforeprint', () => {
   printing = true;
-  document.title = 'デジクリアンケート集計_' + fileStamp();
+  document.title = FILE_NAME + '_' + fileStamp();
   $('printedAt').textContent = new Date().toLocaleString('ja-JP');
   render();
 });
