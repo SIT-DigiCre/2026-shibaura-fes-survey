@@ -94,6 +94,61 @@ test('スマホ版: 回答 → お礼（回答 ID は出さない）', async ({ 
   expect(errors).toEqual([]);
 });
 
+test('スマホ版: 英語でも「その他」を書ける。記入以外は日本語で送る', async ({ page }) => {
+  const errors = collectErrors(page);
+  const received = await mockGas(page, { count: 41 });
+  await page.goto('/?m=phone');
+  await fontsReady(page);
+  await page.screenshot({ path: SHOT + 'phone-en-00-idle.png', fullPage: true });
+  await page.locator('.btn-start').tap();
+  await page.locator('.lang-b[data-l="en"]').tap();
+  await expect(page.locator('.q-title')).toHaveText('Which exhibits or activities did you like?');
+  await page.locator('.o[data-v="J"]').tap();
+  await page.waitForTimeout(900);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.screenshot({ path: SHOT + 'phone-en-01-q1.png', fullPage: true });
+  await page.locator('#next').tap();
+  await page.locator('.o[data-v="その他"]').tap();
+  await expect(page.locator('.o[data-v="その他"]')).toContainText('Other');
+  await expect(page.locator('#otherText')).toHaveAttribute('placeholder', 'Write anything you like');
+  await page.locator('#otherText').fill('Great sound');
+  await page.locator('.q-title').tap();
+  await expect(page.locator('#chips .chip[data-v="その他"]')).toContainText('Other: “Great sound”');
+  // 言語を変えても記入は消えない
+  await page.locator('.lang-b[data-l="ja"]').tap();
+  await expect(page.locator('#otherText')).toHaveValue('Great sound');
+  await page.locator('.lang-b[data-l="en"]').tap();
+  await page.locator('#next').tap();
+  for (let i = 3; i <= 7; i++) {
+    await expect(page.locator('.q-num')).toHaveText('Q' + i);
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    expect(
+      await page.evaluate(() =>
+        [...document.querySelectorAll('.o-in, .lb')]
+          .filter(
+            (e) =>
+              e.scrollWidth > e.clientWidth + 1 ||
+              (!e.classList.contains('lb') && e.scrollHeight > e.clientHeight + 1),
+          )
+          .map((e) => e.textContent),
+      ),
+    ).toEqual([]);
+    await page.screenshot({ path: SHOT + 'phone-en-q' + i + '.png', fullPage: true });
+    if (i < 7) await page.locator('#next').tap();
+  }
+  await expect(page.locator('#next')).toHaveText('Submit');
+  await page.locator('#next').tap();
+  await expect(page.locator('#thanks')).toContainText('Thank you');
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: SHOT + 'phone-en-thanks.png', fullPage: true });
+  await expect.poll(() => received.length).toBe(1);
+  expect(received[0].q1).toBe('J 企画うちよそ');
+  expect(received[0].q2).toBe('その他');
+  expect(received[0].text).toBe('良かった理由: Great sound');
+  expect(errors).toEqual([]);
+});
+
 test('スマホ版: ロゴを 5 回タップしても管理画面は開かない', async ({ page }) => {
   await mockGas(page);
   await page.goto('/?m=phone');

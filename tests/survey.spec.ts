@@ -145,6 +145,107 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   expect(errors).toEqual([]);
 });
 
+test('英語に切り替えて回答しても、送信する値は日本語のまま。待ち受けで日本語に戻る', async ({ page }) => {
+  const errors = collectErrors(page);
+  const received = await mockGas(page, { count: 41 });
+  await page.goto('/');
+  await fontsReady(page);
+  await expect(page.locator('#idle button')).toHaveCount(1);
+  await expect(page.locator('.btn-start')).toContainText('English available');
+  await page.locator('.btn-start').click();
+
+  // 最初は日本語。英語に変えると、選んだ答えも言語に合わせて変わる
+  await expect(page.locator('.lang-b[data-l="ja"]')).toHaveAttribute('aria-pressed', 'true');
+  const opt = (v: string) => page.locator('.o[data-v="' + v + '"]');
+  await opt('C').dblclick();
+  await expect(page.locator('#chips .chip.best')).toContainText('C ゲーム展示 ★BEST');
+  await page.locator('.lang-b[data-l="en"]').click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('#chips .chip.best')).toContainText('C Games ★BEST');
+  await expect(opt('C')).toHaveClass(/best/);
+  await expect(page.locator('.sub-count .js-total')).toHaveText('41');
+
+  // すべての設問で日本語が残らず、文字がはみ出さない
+  const noJa = async (sel: string) =>
+    expect(
+      await page.locator(sel).evaluate((el) => {
+        const c = el.cloneNode(true) as HTMLElement;
+        c.querySelectorAll('.lang').forEach((x) => x.remove());
+        return c.textContent;
+      }),
+    ).not.toMatch(/[\u3040-\u30ff\u4e00-\u9fff]/);
+  const overflow = () =>
+    page.evaluate(() => {
+      const bad: string[] = [];
+      // .lb は行の高さより字面が少し大きいので、高さはボタン内（.o-in）で見る
+      document.querySelectorAll('.hd, .sub, .o-in, .lb, #card, .btn-next, .stock-h').forEach((el) => {
+        const tall = !el.classList.contains('lb') && el.scrollHeight > el.clientHeight + 1;
+        if (el.scrollWidth > el.clientWidth + 1 || tall) bad.push((el.textContent || '').trim() || el.className);
+      });
+      return bad;
+    });
+  for (let i = 1; i <= 7; i++) {
+    await expect(page.locator('.q-num')).toHaveText('Q' + i);
+    await page.waitForTimeout(350);
+    await noJa('#main');
+    expect(await overflow()).toEqual([]);
+    await page.screenshot({ path: SHOT + 'signage-en-q' + i + '.png' });
+    if (i > 1) await page.locator('.o').first().click();
+    if (i < 7) await page.locator('#next').click();
+  }
+  await page.waitForTimeout(1200);
+  await noJa('#chips');
+  await page.screenshot({ path: SHOT + 'signage-en-q7-chips.png' });
+
+  await expect(page.locator('#next')).toHaveText('Submit');
+  await page.locator('#next').click();
+  await expect(page.locator('#thanks')).toBeVisible({ timeout: 5000 });
+  await noJa('#thanks');
+  expect(
+    await page.evaluate(
+      () => [...document.querySelectorAll('.ty-msg, .ty-gift-t')].filter((e) => e.scrollWidth > e.clientWidth).length,
+    ),
+  ).toBe(0);
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: SHOT + 'signage-en-thanks.png' });
+
+  await expect.poll(() => received.length).toBe(1);
+  const r = received[0];
+  expect(r.q1).toBe('C ゲーム展示');
+  expect(r.best).toBe('C ゲーム展示');
+  expect(r.q2).toBe('感動した');
+  expect(r.q3).toBe('大変良かった');
+  expect(r.q5).toBe('10代未満');
+  expect(r.q6).toBe('中学生');
+  expect(r.q7).toBe('展示が見やすかった');
+
+  // 次の人は日本語から
+  await expect(page.locator('#idle')).toBeVisible({ timeout: 8000 });
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
+  await expect(page.locator('#idle .js-total')).toHaveText('42');
+  await page.locator('.btn-start').click();
+  await expect(page.locator('.q-title')).toHaveText('良いと思った展示・体験は？');
+  await expect(page.locator('.sub-count')).toContainText('回答');
+  await expect(page.locator('.sub-count .js-total')).toHaveText('42');
+  await expect(page.locator('#back')).toHaveText('◀ もどる');
+  expect(errors).toEqual([]);
+});
+
+test('英語表示の放置警告', async ({ page }) => {
+  await page.clock.install();
+  await mockGas(page);
+  await page.goto('/');
+  await page.locator('.btn-start').click();
+  await page.locator('.lang-b[data-l="en"]').click();
+  await page.locator('.o[data-v="A"]').click();
+  await page.clock.runFor(61000);
+  await expect(page.locator('#warn')).toContainText('Still answering?');
+  await expect(page.locator('#wc')).not.toHaveText('');
+  await page.screenshot({ path: SHOT + 'signage-en-warn.png' });
+  await page.getByRole('button', { name: 'Keep answering' }).click();
+  await expect(page.locator('#warn')).toBeHidden();
+});
+
 test('送信に失敗しても来場者には見せず、あとで再送する', async ({ page }) => {
   const errors = collectErrors(page);
   await mockGas(page, { fail: true });

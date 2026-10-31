@@ -57,7 +57,9 @@
           <div class="idle-body">
             <p class="idle-kicker">芝浦祭 2026 ブース評価アンケート</p>
             <h1 class="idle-title">展示の感想を<br />きかせてください</h1>
-            <button type="button" class="btn-start" data-act="start">タッチしてスタート</button>
+            <button type="button" class="btn-start" data-act="start">
+              タッチしてスタート<span class="btn-start-en" lang="en">Touch to start · English available</span>
+            </button>
             <p class="idle-count">これまでの回答 <b class="js-total">0</b> 件</p>
           </div>
           <div class="band-foot"></div>
@@ -66,17 +68,23 @@
         <!-- 回答 -->
         <section id="main" class="screen">
           <header class="hd">
-            <div class="logo-hit hd-logo" data-act="logo">
-              <img src="/logo-white.png" alt="デジクリ Digital Creation Circle" />
+            <div class="hd-l">
+              <div class="logo-hit hd-logo" data-act="logo">
+                <img src="/logo-white.png" alt="デジクリ Digital Creation Circle" />
+              </div>
+              <div class="lang" role="group" aria-label="Language">
+                <button type="button" class="lang-b on" data-act="lang" data-l="ja" lang="ja" aria-pressed="true">日本語</button>
+                <button type="button" class="lang-b" data-act="lang" data-l="en" lang="en" aria-pressed="false">English</button>
+              </div>
             </div>
             <div class="present">
               <div class="present-k">PRESENT</div>
-              <div class="present-t">回答で<br />イラストカード</div>
+              <div class="present-t" data-t="present">回答で<br />イラストカード</div>
             </div>
           </header>
           <div class="sub">
-            <div class="sub-title">芝浦祭 2026 ／ ブース評価アンケート</div>
-            <div class="sub-count">回答 <b class="js-total">0</b> 件</div>
+            <div class="sub-title" data-t="subTitle">芝浦祭 2026 ／ ブース評価アンケート</div>
+            <div class="sub-count" data-t="subCount">回答 <b class="js-total">0</b> 件</div>
           </div>
           <ol class="steps" id="steps" aria-label="進捗"></ol>
           <div class="card" id="card">
@@ -84,7 +92,7 @@
             <div class="card-in">
               <div id="qbody"></div>
               <div class="nav">
-                <button type="button" id="back" class="btn-back" data-act="back">◀ もどる</button>
+                <button type="button" id="back" class="btn-back" data-act="back" data-t="back">◀ もどる</button>
                 <button type="button" id="next" class="btn-next" data-act="next">つぎへ ▶</button>
               </div>
             </div>
@@ -92,9 +100,9 @@
           <div class="stock" id="stock">
             <div class="stock-h">
               <div class="stock-k">YOUR ANSWERS <span id="scount">00</span></div>
-              <div class="stock-n">タッチで修正できます</div>
+              <div class="stock-n" data-t="stockN">タッチで修正できます</div>
             </div>
-            <p class="stock-empty">選んだ答えがチップになって<br />ここに落ちてきます</p>
+            <p class="stock-empty" data-t="stockEmpty">選んだ答えがチップになって<br />ここに落ちてきます</p>
             <div id="chips"></div>
             <div class="stock-foot"></div>
           </div>
@@ -109,10 +117,10 @@
           <div class="idle-band ty-band"><img class="idle-logo" src="/logo-white.png" alt="デジクリ" /></div>
           <div class="ty-body">
             <p class="ty-k">THANK YOU!</p>
-            <p class="ty-msg">ご回答<br />ありがとうございました！</p>
+            <p class="ty-msg" data-t="tyMsg">ご回答<br />ありがとうございました！</p>
             <div class="ty-gift">
               <div class="ty-gift-k">PRESENT FOR YOU</div>
-              <div class="ty-gift-t">イラストカードを<br />1枚プレゼント！</div>
+              <div class="ty-gift-t" data-t="tyGift">イラストカードを<br />1枚プレゼント！</div>
             </div>
             <div class="ty-bar"><i id="tyBar"></i></div>
           </div>
@@ -123,9 +131,9 @@
         <section id="warn" class="ov" role="alertdialog" aria-labelledby="warnT">
           <div class="dlg warn-dlg">
             <p class="dlg-k">STILL THERE?</p>
-            <p class="warn-t" id="warnT">まだ回答中ですか？</p>
-            <p class="warn-s"><b id="wc">20</b> 秒後に最初の画面に戻ります</p>
-            <button type="button" class="btn-primary" data-act="keep">回答をつづける</button>
+            <p class="warn-t" id="warnT" data-t="warnT">まだ回答中ですか？</p>
+            <p class="warn-s" data-t="warnS"><b id="wc">20</b> 秒後に最初の画面に戻ります</p>
+            <button type="button" class="btn-primary" data-act="keep" data-t="keep">回答をつづける</button>
           </div>
         </section>
 

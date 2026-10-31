@@ -1,6 +1,6 @@
 // アンケート本体。流れ: 待ち受け → Q1〜Q7 → 送信 → お礼 5 秒 → 待ち受け
 import './style.css';
-import { QUESTIONS, GENRES, OTHER, genreLabel, type AnswerKey, type Option, type Question } from '../shared/questions';
+import { QUESTIONS, GENRES, OTHER, genreLabel, genreName, type AnswerKey, type Option, type Question } from '../shared/questions';
 import { SEP, isoLocal, pad, type SurveyRecord } from '../shared/record';
 import { fit, H0, W0 } from './fit';
 import { burst, clearFlyers, fly, initFx, reducedMotion, sizeCanvas } from './fx';
@@ -10,6 +10,7 @@ import { deviceName, fetchCount, flush, newId, saveRecord, totalCount } from './
 import { initAdmin, openPin, pinKey, adminAct } from './admin';
 import { installAutoFullscreen } from './fullscreen';
 import { detectPhone } from './mode';
+import { lang, longLabel, quote, setLang, tr, type Lang } from './i18n';
 
 const CFG = {
   THANKS_MS: 5000, // お礼画面の表示時間
@@ -138,22 +139,23 @@ function render() {
     typ +
     '</div></div>' +
     '<h1 class="q-title">' +
-    q.title +
+    tr(q.title) +
     '</h1><p class="q-hint">' +
-    q.hint +
+    tr(q.hint) +
     '</p><div class="opts' +
     (q.one ? ' one' : '') +
     '">';
   for (const o of optsOf(q)) {
+    const label = tr(o.l);
     h +=
       '<button type="button" class="o" data-act="opt" data-v="' +
       esc(o.v) +
       '"><span class="o-in">' +
       (o.k ? '<span class="key">' + o.k + '</span>' : '') +
       '<span class="lb' +
-      (o.l.length > (o.k ? 6 : 8) ? ' s' : '') +
+      (longLabel(label, !!o.k) ? ' s' : '') +
       '">' +
-      esc(o.l) +
+      esc(label) +
       '</span>';
     if (o.lv) {
       h += '<span class="lv" aria-hidden="true">';
@@ -166,8 +168,11 @@ function render() {
   h += '</div>';
   if (PHONE && q.other) {
     h +=
-      '<div class="other" id="otherBox"><label class="other-l" for="otherText">その他の内容（任意）</label>' +
-      '<textarea class="other-t" id="otherText" rows="2" maxlength="100" placeholder="自由に書いてください"></textarea></div>';
+      '<div class="other" id="otherBox"><label class="other-l" for="otherText">' +
+      tr('その他の内容（任意）') +
+      '</label><textarea class="other-t" id="otherText" rows="2" maxlength="100" placeholder="' +
+      tr('自由に書いてください') +
+      '"></textarea></div>';
   }
   qbody.innerHTML = h;
   const ta = document.getElementById('otherText') as HTMLTextAreaElement | null;
@@ -217,18 +222,18 @@ function renderNav() {
   if (st.step === LAST) {
     if (canSend()) {
       cls += ' go';
-      label = '送信する';
+      label = tr('送信する');
     } else {
       cls += ' dis';
-      label = 'Q1に答えてね';
+      label = tr('Q1に答えてね');
     }
   } else if (q.required && !answered(q)) {
     cls += ' dis';
-    label = 'えらんでね';
-  } else if (answered(q)) label = 'つぎへ ▶';
+    label = tr('えらんでね');
+  } else if (answered(q)) label = tr('つぎへ ▶');
   else {
     cls += ' skip';
-    label = 'スキップ ▶';
+    label = tr('スキップ ▶');
   }
   nextEl.className = cls;
   nextEl.textContent = label;
@@ -341,12 +346,12 @@ type ChipKey = keyof Answers;
 function chipText(key: ChipKey, v: string) {
   if (v === OTHER) {
     const t = (st.ans.other[key as AnswerKey] || '').trim();
-    if (t) return (key === 'q7' ? '' : 'その他：') + '「' + esc(t.length > 12 ? t.slice(0, 12) + '…' : t) + '」';
+    if (t) return (key === 'q7' ? '' : tr('その他：')) + quote(esc(t.length > 12 ? t.slice(0, 12) + '…' : t));
   }
-  if (key === 'q1') return esc(genreLabel(v)) + (st.ans.best === v ? ' ★BEST' : '');
-  if (key === 'q3') return '評価 ' + esc(v);
-  if (key === 'q7') return '「' + esc(v) + '」';
-  return esc(v);
+  if (key === 'q1') return esc(v + ' ' + tr(genreName(v))) + (st.ans.best === v ? ' ★BEST' : '');
+  if (key === 'q3') return tr('評価') + ' ' + esc(tr(v));
+  if (key === 'q7') return quote(esc(tr(v)));
+  return esc(tr(v));
 }
 const chipTag = (key: ChipKey) => key.toUpperCase();
 const chipStep = (key: ChipKey) => parseInt(key.slice(1), 10) - 1;
@@ -413,6 +418,15 @@ function updateStock() {
   chipsEl.classList.toggle('dense', n > 22);
 }
 
+/* ================= 言語 ================= */
+function changeLang(l: Lang) {
+  if (l === lang) return;
+  setLang(l);
+  for (const c of liveChips()) fillChip(c, c.getAttribute('data-k') as ChipKey, c.getAttribute('data-v') as string);
+  renderTotal();
+  if (st.mode === 'survey') render();
+}
+
 /* ================= 送信 ================= */
 function buildRecord(id: string): SurveyRecord {
   const a = st.ans;
@@ -456,7 +470,7 @@ function submit() {
   if (!saveRecord(rec)) {
     // 保存できなかったときはお礼を出さない（回答はそのまま残す）
     nextEl.className = 'btn-next dis';
-    nextEl.textContent = '保存エラー：スタッフへ';
+    nextEl.textContent = tr('保存エラー：スタッフへ');
     shake(nextEl);
     sErr();
     return;
@@ -511,6 +525,7 @@ function resetAll() {
   st.lastTapEl = null;
   chipsEl.innerHTML = '';
   clearFlyers();
+  changeLang('ja'); // 次の人は日本語から
   $('thanks').className = 'ov';
   $('warn').className = 'ov';
   $('scan').className = '';
@@ -584,7 +599,8 @@ function dispatch(el: HTMLElement) {
   }
   if (a === 'start' && st.mode === 'idle') return startSurvey();
   if (st.mode !== 'survey') return;
-  if (a === 'opt') tapOpt(el);
+  if (a === 'lang') changeLang(el.getAttribute('data-l') as Lang);
+  else if (a === 'opt') tapOpt(el);
   else if (a === 'next') {
     if (st.step === LAST) submit();
     else go(1);
