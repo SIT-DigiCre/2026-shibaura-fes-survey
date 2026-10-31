@@ -17,7 +17,9 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   await expect(page.locator('.idle-poster')).toContainText('イラストカード');
   const broken = await page
     .locator('.idle-poster img')
-    .evaluateAll((els) => els.filter((e) => !(e as HTMLImageElement).complete || !(e as HTMLImageElement).naturalWidth).length);
+    .evaluateAll(
+      (els) => els.filter((e) => !(e as HTMLImageElement).complete || !(e as HTMLImageElement).naturalWidth).length,
+    );
   expect(broken).toBe(0);
   const startBox = await page.getByRole('button', { name: 'タッチしてスタート' }).boundingBox();
   expect(startBox!.y + startBox!.height).toBeLessThan(1400);
@@ -102,6 +104,11 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   await expect(page.locator('.q-num')).toHaveText('Q6');
   await page.waitForTimeout(300);
   await page.screenshot({ path: SHOT + 'signage-05-q6.png' });
+  // 重なる属性はデジクリの項目を選ぶよう案内し、ひとつだけ選べる
+  await expect(page.locator('.q-hint')).toContainText('デジクリの方はデジクリの項目を');
+  await page.locator('.o', { hasText: '芝浦工大 OB・OG' }).click();
+  await page.locator('.o', { hasText: 'デジクリ OB・OG' }).click();
+  await expect(page.locator('.o.on')).toHaveCount(1);
   await page.locator('.o', { hasText: '他大学の学生' }).click();
   await page.locator('#next').click();
   await expect(page.locator('.q-num')).toHaveText('Q7');

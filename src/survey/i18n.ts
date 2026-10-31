@@ -30,6 +30,8 @@ const EN: Record<string, string> = {
   // Q3
   'ブース全体の評価は？': 'How was the booth overall?',
   ひとつ選んでください: 'Choose one',
+  'ひとつ選んでください。<br /><b>デジクリの方</b>はデジクリの項目を':
+    'Choose one.<br /><b>Digicre members and alumni</b>: please pick a Digicre option',
   大変良かった: 'Excellent',
   良いと思う: 'Good',
   普通: 'Average',
