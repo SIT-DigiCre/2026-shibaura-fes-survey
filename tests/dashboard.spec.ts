@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { MOCK_GAS } from '../playwright.config';
+import type { SurveyRecord } from '../src/shared/record';
 import { SHOT, collectErrors, fontsReady } from './helpers';
 
 for (const w of [1440, 390]) {
@@ -178,6 +179,34 @@ test('ダッシュボード: GAS から取得し、合言葉が違えばロッ�
   await expect(page.locator('.cm').nth(1)).toContainText('「また来たい！」 ／ DTM が楽しかった');
   expect(keys).toContain('secret');
   expect(errors).toEqual([]);
+});
+
+test('ダッシュボード: 時間帯は日本時間で数え、列が多ければラベルを間引く', async ({ page }) => {
+  const rows: Partial<SurveyRecord>[] = [
+    // 時計が UTC のサイネージ（日本時間 10:04）と、日本時間の端末
+    { id: 'DC-S1-0015', at: '2026-10-31T01:04:09+00:00', src: 'signage', q1: 'A イラスト' },
+    { id: 'DC-S1-0001', at: '2026-10-31T10:31:44+09:00', src: 'signage', q1: 'A イラスト' },
+  ];
+  await page.route(MOCK_GAS + '**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ ok: true, auth: true, updated: '', rows }),
+    }),
+  );
+  await page.goto('/dashboard/');
+  const labels = page.locator('#hoursX span');
+  await expect(labels).toHaveText(['10時', '11時', '12時', '13時', '14時', '15時', '16時', '17時']);
+  await expect(page.locator('#hours .hcol').first()).toContainText('2');
+
+  // 早朝のテスト回答で列が増えても、ラベルは 8 個まで
+  rows.push({ id: 'DC-S1-0002', at: '2026-10-31T01:00:00+09:00', src: 'signage', q1: 'A イラスト' });
+  await page.reload();
+  await expect(labels).toHaveCount(17);
+  const shown = await labels.evaluateAll((els) => els.filter((e) => e.textContent).length);
+  expect(shown).toBeLessThanOrEqual(8);
+  await page.screenshot({ path: SHOT + 'dashboard-hours-wide.png', fullPage: true });
 });
 
 test('ダッシュボード: /dashboard（末尾 / なし）でもダッシュボードが PC 表示で開く', async ({ page }) => {

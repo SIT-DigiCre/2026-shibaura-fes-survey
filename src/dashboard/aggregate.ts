@@ -7,8 +7,13 @@ export interface Count {
   n: number;
 }
 
-const day = (at: string) => (at || '').slice(0, 10);
-const hour = (at: string) => parseInt((at || '').slice(11, 13), 10);
+/** 回答日時を日本時間の 'YYYY-MM-DDTHH:mm:ss' にする（端末の時計が UTC だと +00:00 で届くため） */
+function jst(at: string): string {
+  const t = Date.parse(at);
+  return isNaN(t) ? at || '' : new Date(t + 9 * 3600000).toISOString().slice(0, 19);
+}
+const day = (at: string) => jst(at).slice(0, 10);
+const hour = (at: string) => parseInt(jst(at).slice(11, 13), 10);
 
 export function aggregate(rows: SurveyRecord[], today: string) {
   const total = rows.length;
@@ -56,9 +61,9 @@ export function aggregate(rows: SurveyRecord[], today: string) {
 
   const comments = rows
     .filter((r) => r.q7 || r.text)
-    .sort((a, b) => (a.at < b.at ? 1 : -1))
+    .sort((a, b) => (jst(a.at) < jst(b.at) ? 1 : -1))
     .map((r) => ({
-      at: r.at,
+      at: jst(r.at),
       src: r.src === 'phone' ? 'スマホ' : 'サイネージ',
       text: [
         split(r.q7)

@@ -161,7 +161,9 @@ function render() {
         'px"></div></div>',
     )
     .join('');
-  $('hoursX').innerHTML = a.hours.map((h) => '<span class="hud">' + h.label + '</span>').join('');
+  // 列が多いときはラベルを間引く（重ならないように）
+  const hstep = Math.ceil(a.hours.length / 8);
+  $('hoursX').innerHTML = a.hours.map((h, i) => '<span class="hud">' + (i % hstep ? '' : h.label) + '</span>').join('');
 
   $('panels').innerHTML = a.panels
     .map(
