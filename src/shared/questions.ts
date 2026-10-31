@@ -59,7 +59,7 @@ export const QUESTIONS: Question[] = [
     best: true,
     required: true,
     title: '良いと思った展示・体験は？',
-    hint: 'いくつでも選べます。特に良かったものは<br><b>長押し</b> か <b>2回タップ</b> で ★BEST に',
+    hint: 'いくつでも選べます。特に良かったもの1つは<br>右の <b>☆BEST</b> をタッチ',
     opts: GENRES.map(([k, l]) => ({ v: k, l, k })),
     short: '良いと思った展示・体験',
   },

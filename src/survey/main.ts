@@ -17,8 +17,6 @@ const CFG = {
   IDLE_MS: 60000, // 回答途中の放置で警告を出すまで
   WARN_SEC: 20, // 警告から待ち受けに戻るまで
   RESEND_MS: 90000, // 待ち受け中の再送間隔
-  LONGPRESS_MS: 480, // 長押しで★BEST
-  DOUBLETAP_MS: 350, // 2回タップで★BEST
 };
 
 const PHONE = detectPhone(location.search);
@@ -73,8 +71,6 @@ const st = {
   ans: freshAns(),
   lastActive: Date.now(),
   warnLeft: 0,
-  lastTapEl: null as HTMLElement | null,
-  lastTapT: 0,
 };
 
 function esc(s: string) {
@@ -147,6 +143,7 @@ function render() {
     '">';
   for (const o of optsOf(q)) {
     const label = tr(o.l);
+    if (q.best) h += '<div class="o-cell">';
     h +=
       '<button type="button" class="o" data-act="opt" data-v="' +
       esc(o.v) +
@@ -155,15 +152,22 @@ function render() {
       '<span class="lb' +
       (longLabel(label, !!o.k) ? ' s' : '') +
       '">' +
-      esc(label) +
+      esc(label).replace('・', '・<wbr>') +
       '</span>';
     if (o.lv) {
       h += '<span class="lv" aria-hidden="true">';
       for (let k = 1; k <= 5; k++) h += '<i' + (k <= o.lv ? ' class="f"' : '') + '></i>';
       h += '</span>';
     }
-    if (q.best) h += '<span class="bt">★BEST</span>';
     h += '</span></button>';
+    if (q.best) {
+      h +=
+        '<button type="button" class="o-star" data-act="star" data-v="' +
+        esc(o.v) +
+        '" aria-label="' +
+        esc(label) +
+        ' ★BEST"><i aria-hidden="true"></i><span>BEST</span></button></div>';
+    }
   }
   h += '</div>';
   if (PHONE && q.other) {
@@ -200,6 +204,7 @@ function syncOpts() {
     els[i].classList.toggle('on', isOn(q, v) && !best);
     els[i].classList.toggle('best', best);
     els[i].setAttribute('aria-pressed', isOn(q, v) ? 'true' : 'false');
+    if (q.best) (els[i].nextElementSibling as Element).setAttribute('aria-pressed', best ? 'true' : 'false');
   }
   const box = document.getElementById('otherBox');
   if (box) box.classList.toggle('show', isOn(q, OTHER));
@@ -249,16 +254,6 @@ function renderNav() {
 function tapOpt(el: HTMLElement) {
   const q = Q[st.step];
   const v = el.getAttribute('data-v') as string;
-  const now = Date.now();
-  // 2回タップ → ★BEST
-  if (q.best && st.lastTapEl === el && now - st.lastTapT < CFG.DOUBLETAP_MS) {
-    st.lastTapEl = null;
-    ensureOn(v, el);
-    setBest(v);
-    return;
-  }
-  st.lastTapEl = el;
-  st.lastTapT = now;
   if (q.type === 'single') {
     const cur = st.ans[q.key] as string | null;
     if (cur !== v) {
@@ -287,13 +282,13 @@ function tapOpt(el: HTMLElement) {
   focusOther(v);
 }
 
-function ensureOn(v: string, el: HTMLElement) {
+/** ★ を押す。まだ選んでいない項目なら一緒に選ぶ。もう一度押すと ★BEST だけ外す */
+function tapStar(el: HTMLElement) {
+  const v = el.getAttribute('data-v') as string;
   if (st.ans.q1.indexOf(v) < 0) {
     st.ans.q1.push(v);
-    addChip('q1', v, el);
+    addChip('q1', v, el.previousElementSibling as HTMLElement);
   }
-}
-function setBest(v: string) {
   const prev = st.ans.best;
   st.ans.best = prev === v ? null : v;
   if (prev) updateChip('q1', prev);
@@ -301,17 +296,6 @@ function setBest(v: string) {
   sBest();
   syncOpts();
   renderNav();
-}
-function longPressOpt(el: HTMLElement) {
-  ensureOn(el.getAttribute('data-v') as string, el);
-  setBest(el.getAttribute('data-v') as string);
-  if (navigator.vibrate) {
-    try {
-      navigator.vibrate(30);
-    } catch {
-      /* noop */
-    }
-  }
 }
 
 function go(d: number) {
@@ -325,13 +309,11 @@ function go(d: number) {
   }
   st.step = Math.max(0, Math.min(LAST, st.step + d));
   if (st.step > st.reached) st.reached = st.step;
-  st.lastTapEl = null;
   sClick();
   render();
 }
 function jump(s: number) {
   st.step = s;
-  st.lastTapEl = null;
   render();
 }
 function shake(el: Element | null) {
@@ -522,7 +504,6 @@ function resetAll() {
   st.ans = freshAns();
   st.step = 0;
   st.reached = 0;
-  st.lastTapEl = null;
   chipsEl.innerHTML = '';
   clearFlyers();
   changeLang('ja'); // 次の人は日本語から
@@ -601,6 +582,7 @@ function dispatch(el: HTMLElement) {
   if (st.mode !== 'survey') return;
   if (a === 'lang') changeLang(el.getAttribute('data-l') as Lang);
   else if (a === 'opt') tapOpt(el);
+  else if (a === 'star') tapStar(el);
   else if (a === 'next') {
     if (st.step === LAST) submit();
     else go(1);
@@ -625,9 +607,6 @@ installTouch({
     unlockAudio();
   },
   onTap: dispatch,
-  longPress: (el) =>
-    el.getAttribute('data-act') === 'opt' && Q[st.step].best && st.mode === 'survey' ? () => longPressOpt(el) : null,
-  longPressMs: CFG.LONGPRESS_MS,
   scrollable: PHONE,
 });
 

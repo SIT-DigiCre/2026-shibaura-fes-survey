@@ -8,8 +8,8 @@ export let lang: Lang = 'ja';
 const EN: Record<string, string> = {
   // Q1
   '良いと思った展示・体験は？': 'Which exhibits or activities did you like?',
-  'いくつでも選べます。特に良かったものは<br><b>長押し</b> か <b>2回タップ</b> で ★BEST に':
-    'Choose as many as you like. <b>Press and hold</b> or <b>double-tap</b> your favorite to mark it ★BEST',
+  'いくつでも選べます。特に良かったもの1つは<br>右の <b>☆BEST</b> をタッチ':
+    'Choose as many as you like. Tap <b>☆BEST</b> on your one favorite',
   イラスト: 'Illustration',
   MV: 'Music videos',
   ゲーム展示: 'Games',
@@ -114,7 +114,7 @@ export function quote(s: string): string {
 
 /** 選択肢の文字を小さくする長さ（英語は 1 文字の幅が狭い） */
 export function longLabel(s: string, hasKey: boolean): boolean {
-  return lang === 'en' ? s.length > (hasKey ? 10 : 15) : s.length > (hasKey ? 6 : 8);
+  return lang === 'en' ? s.length > (hasKey ? 8 : 15) : s.length > (hasKey ? 5 : 8);
 }
 
 /** 画面に書いてある文字を差し替える。中の .js-total は作り直すので、呼んだ側で描き直す */

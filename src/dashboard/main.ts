@@ -177,12 +177,10 @@ function render() {
   $('locked').hidden = auth;
   if (auth) {
     $('csv').textContent = 'CSVをダウンロード（全' + rows.length + '件）';
-    // 印刷には折りたたまず全件載せる
-    const shown = printing ? a.comments.length : commentsShown;
-    const rest = a.comments.length - shown;
+    const rest = a.comments.length - commentsShown;
     $('comments').innerHTML = a.comments.length
       ? a.comments
-          .slice(0, shown)
+          .slice(0, commentsShown)
           .map(
             (c) =>
               '<div class="cm"><span class="cm-t hud">' +

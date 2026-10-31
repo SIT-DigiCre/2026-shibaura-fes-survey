@@ -65,7 +65,7 @@ test('ダッシュボード: 印刷・PDF 保存', async ({ page }) => {
   const beforePrint = () => page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
   const afterPrint = () => page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
 
-  // ロック中: 集計だけが載り、操作部とコメントは載らない
+  // 集計だけが載り、操作部は載らない
   await beforePrint();
   await page.emulateMedia({ media: 'print' });
   await expect(page).toHaveTitle(/^デジクリアンケート集計_\d{8}_\d{4}$/);
@@ -83,19 +83,17 @@ test('ダッシュボード: 印刷・PDF 保存', async ({ page }) => {
   await expect(page).toHaveTitle(/^アンケート集計/);
   await expect(page.locator('#print')).toBeVisible();
 
-  // 解除中: コメントを全件載せ、印刷後は画面の表示件数に戻す
+  // 解除中でもコメントは載らない
   await page.locator('#dash-key').fill('demo');
   await page.getByRole('button', { name: '解除' }).click();
-  await expect(page.locator('.cm')).toHaveCount(20);
+  await expect(page.locator('#export')).toBeVisible();
   await beforePrint();
   await page.emulateMedia({ media: 'print' });
-  expect(await page.locator('.cm').count()).toBeGreaterThan(70);
-  await expect(page.locator('#more')).toHaveCount(0);
-  await expect(page.locator('#csv')).toBeHidden();
+  await expect(page.locator('#export')).toBeHidden();
   await page.pdf({ path: SHOT + 'dashboard-print-unlocked.pdf', preferCSSPageSize: true, printBackground: true });
   await afterPrint();
   await page.emulateMedia({ media: 'screen' });
-  await expect(page.locator('.cm')).toHaveCount(20);
+  await expect(page.locator('#export')).toBeVisible();
   expect(errors).toEqual([]);
 });
 

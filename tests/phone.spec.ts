@@ -34,10 +34,9 @@ test('スマホ版: 回答 → お礼（回答 ID は出さない）', async ({ 
   await opt('A').tap();
   await page.waitForTimeout(400);
   await opt('F').tap();
-  // 2回タップで ★BEST
+  // ☆ を押すと ★BEST
   await page.waitForTimeout(400);
-  await opt('C').tap();
-  await opt('C').tap();
+  await page.locator('.o-star[data-v="C"]').tap();
   await expect(opt('C')).toHaveClass(/best/);
   await page.waitForTimeout(1200);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);

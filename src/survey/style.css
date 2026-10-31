@@ -692,19 +692,89 @@ button:focus-visible {
   background: #0077aa;
 }
 
-/* ★BEST はボタン上端に重ねて、ラベルの幅を取らない */
-.o .bt {
-  display: none;
-  position: absolute;
-  right: 8px;
-  top: -12px;
-  padding: 0 6px;
-  border: 2px solid #0077aa;
-  font-family: var(--f-hud);
+/* Q1 は項目の右端に ☆BEST ボタンを重ねる。ボタンの下にラベルが潜らないよう右を空ける */
+.o-cell {
+  position: relative;
+  width: calc(50% - 5px);
+  margin: 0 10px 10px 0;
+}
+
+.o-cell:nth-child(2n) {
+  margin-right: 0;
+}
+
+.o-cell .o {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0 66px 0 8px;
+}
+
+.o-cell .o .key {
+  width: 28px;
+  margin-right: 6px;
+}
+
+.o-cell .o .lb {
+  font-size: 18px;
+  line-height: 23px;
+  word-break: keep-all;
+}
+
+.o-cell .o .lb.s {
   font-size: 16px;
   line-height: 20px;
+}
+
+.o-star {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 64px;
+  height: 100%;
+  padding: 0;
+  border: 2px solid #9fdcf5;
   background: #fff;
   color: #0077aa;
+  text-align: center;
+}
+
+.o-star i {
+  display: block;
+  font-style: normal;
+  font-size: 28px;
+  line-height: 30px;
+}
+
+.o-star i::before {
+  content: "☆";
+}
+
+.o-star span {
+  display: block;
+  font-family: var(--f-hud);
+  font-size: 16px;
+  line-height: 18px;
+}
+
+.o.on + .o-star {
+  border-color: #0077aa;
+}
+
+.o.best + .o-star {
+  border-color: #0077aa;
+  border-left-color: #fff;
+  background: #0077aa;
+  color: #fff;
+}
+
+.o.best + .o-star i::before {
+  content: "★";
+}
+
+.o-star.pressing {
+  -webkit-transform: scale(0.94);
+  transform: scale(0.94);
 }
 
 .o.on,
@@ -729,10 +799,6 @@ button:focus-visible {
 
 .o.best {
   box-shadow: inset 8px 0 0 #00b0f0;
-}
-
-.o.best .bt {
-  display: block;
 }
 
 .o.pressing {
@@ -1596,6 +1662,18 @@ html.is-phone .o:nth-child(2n) {
 html.is-phone .one .o {
   width: 100%;
   margin-right: 0;
+}
+
+/* スマホ版の Q1 は ☆BEST の幅を取るので 1 列 */
+html.is-phone .o-cell {
+  width: 100%;
+  margin: 0 0 8px;
+}
+
+html.is-phone .o-cell .o {
+  width: 100%;
+  margin: 0;
+  padding: 0 66px 0 8px;
 }
 
 html.is-phone .o .lb {

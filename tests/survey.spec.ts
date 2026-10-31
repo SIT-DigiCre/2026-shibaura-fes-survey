@@ -40,21 +40,32 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   await opt('A').click();
   await page.waitForTimeout(400);
   await opt('D').click();
-  // 2回タップで ★BEST
-  await opt('C').dblclick();
+  // 選択肢は 64px 以上、☆BEST も 64px 以上
+  const star = (v: string) => page.locator('.o-star[data-v="' + v + '"]');
+  const starBox = await star('A').boundingBox();
+  expect(starBox!.width).toBeGreaterThanOrEqual(64);
+  expect(starBox!.height).toBeGreaterThanOrEqual(64);
+  // ☆ を押すと未選択の項目も一緒に選ばれて ★BEST になる
+  await star('C').click();
   await expect(opt('C')).toHaveClass(/best/);
-  // 長押しで ★BEST を付け替え
-  await opt('E').hover();
-  await page.mouse.down();
-  await page.waitForTimeout(650);
-  await page.mouse.up();
+  await expect(star('C')).toHaveAttribute('aria-pressed', 'true');
+  // 別の ☆ で付け替え。前の項目は選択のまま
+  await page.waitForTimeout(400);
+  await star('E').click();
   await expect(opt('E')).toHaveClass(/best/);
   await expect(opt('C')).toHaveClass(/\bon\b/);
-  // C に戻す
+  await expect(star('C')).toHaveAttribute('aria-pressed', 'false');
+  // もう一度押すと ★BEST だけ外れる
   await page.waitForTimeout(400);
-  await opt('C').dblclick();
-  await expect(opt('C')).toHaveClass(/best/);
+  await star('E').click();
   await expect(opt('E')).toHaveClass(/\bon\b/);
+  await expect(page.locator('.o.best')).toHaveCount(0);
+  // C に戻す。項目を素早く 2 回押しても ★BEST にはならない（選択が外れるだけ）
+  await page.waitForTimeout(400);
+  await star('C').click();
+  await expect(opt('C')).toHaveClass(/best/);
+  await opt('B').dblclick();
+  await expect(opt('B')).not.toHaveClass(/best|\bon\b/);
   await page.waitForTimeout(1200);
   await expect(page.locator('#chips .chip:not(.out)')).toHaveCount(4);
   await expect(page.locator('#chips .chip.best')).toContainText('C ゲーム展示 ★BEST');
@@ -157,7 +168,7 @@ test('英語に切り替えて回答しても、送信する値は日本語の�
   // 最初は日本語。英語に変えると、選んだ答えも言語に合わせて変わる
   await expect(page.locator('.lang-b[data-l="ja"]')).toHaveAttribute('aria-pressed', 'true');
   const opt = (v: string) => page.locator('.o[data-v="' + v + '"]');
-  await opt('C').dblclick();
+  await page.locator('.o-star[data-v="C"]').click();
   await expect(page.locator('#chips .chip.best')).toContainText('C ゲーム展示 ★BEST');
   await page.locator('.lang-b[data-l="en"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');

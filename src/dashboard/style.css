@@ -717,13 +717,8 @@ input:focus-visible {
     gap: 12px;
   }
 
-  .panel,
-  .export {
+  .panel {
     box-shadow: none;
-  }
-
-  .panel,
-  .cm {
     break-inside: avoid;
   }
 
@@ -854,36 +849,5 @@ input:focus-visible {
 
   .hours-x span {
     font-size: 11px;
-  }
-
-  .export-h {
-    padding: 8px 14px;
-  }
-
-  .export .spacer {
-    display: none;
-  }
-
-  .comments {
-    padding: 4px 14px 10px;
-  }
-
-  .cm {
-    padding: 8px 0;
-    gap: 4px 12px;
-  }
-
-  .cm-t {
-    flex-basis: 96px;
-    font-size: 13px;
-  }
-
-  .cm-src {
-    font-size: 12px;
-  }
-
-  .cm-x {
-    font-size: 14px;
-    line-height: 22px;
   }
 }
