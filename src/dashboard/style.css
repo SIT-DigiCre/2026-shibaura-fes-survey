@@ -9,7 +9,6 @@
   --stock: #effafe;
   --line: #9fdcf5;
   --f-pixel: 'DotGothic16', 'Noto Sans JP', sans-serif;
-  --f-hud: 'Silkscreen', 'DotGothic16', monospace;
   --f-body: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
 }
 
@@ -42,9 +41,15 @@ h2 {
   font-size: 22px;
 }
 
+/* 数字。Silkscreen は 4・8・9 が読み取りにくいので使わない */
 .hud {
-  font-family: var(--f-hud);
-  font-weight: 400;
+  font-family: var(--f-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-only {
+  display: none;
 }
 
 .muted {
@@ -158,7 +163,7 @@ input:focus-visible {
 }
 
 .hd .spacer {
-  flex: 1 1 200px;
+  flex: 1 1 0;
 }
 
 .hd-status {
@@ -292,7 +297,7 @@ input:focus-visible {
 }
 
 .kpi-n {
-  font-weight: 700;
+  font-weight: 900;
   font-size: 52px;
   line-height: 56px;
   color: var(--deep);
@@ -357,7 +362,8 @@ input:focus-visible {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 18px;
 }
 
 .gb-fill {
@@ -369,7 +375,6 @@ input:focus-visible {
 }
 
 .gb .sub {
-  font-size: 13px;
   color: var(--sub);
 }
 
@@ -423,12 +428,11 @@ input:focus-visible {
 .bar-n {
   flex: 0 0 34px;
   text-align: right;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .bar-row.lg .bar-n {
   flex-basis: 44px;
-  font-size: 15px;
 }
 
 /* 時間帯 */
@@ -450,7 +454,7 @@ input:focus-visible {
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .hbar {
@@ -639,4 +643,247 @@ input:focus-visible {
 .more {
   display: block;
   margin: 18px auto 0;
+}
+
+/* ---------- 印刷・PDF（A4 縦） ---------- */
+@page {
+  size: a4 portrait;
+  margin: 10mm;
+}
+
+@media print {
+  * {
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: inline;
+  }
+
+  body {
+    min-height: 0;
+    background: none;
+  }
+
+  .hd {
+    padding: 10px 14px;
+  }
+
+  .hd-in {
+    gap: 12px;
+  }
+
+  .hd-logo {
+    width: 140px;
+    height: 40px;
+  }
+
+  .hd-title {
+    padding: 4px 10px;
+    box-shadow: none;
+  }
+
+  .hd-title h1 {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .hd-status {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 4px 8px;
+    gap: 0;
+  }
+
+  .hd-status .muted {
+    font-size: 13px;
+  }
+
+  .hd-status .badge {
+    font-size: 12px;
+  }
+
+  .main {
+    padding: 14px 0 0;
+    gap: 14px;
+  }
+
+  .row,
+  .col {
+    gap: 12px;
+  }
+
+  .panel,
+  .export {
+    box-shadow: none;
+  }
+
+  .panel,
+  .cm {
+    break-inside: avoid;
+  }
+
+  .panel-in,
+  .panel.small {
+    padding: 12px 14px;
+  }
+
+  .kpi {
+    flex: 1 1 0;
+    padding: 10px 12px;
+  }
+
+  .kpi-l {
+    font-size: 14px;
+  }
+
+  .kpi-v {
+    flex-wrap: wrap;
+    gap: 2px 6px;
+  }
+
+  .kpi-n {
+    font-size: 38px;
+    line-height: 42px;
+    text-shadow: none;
+  }
+
+  .kpi-u {
+    font-size: 15px;
+  }
+
+  .kpi-note {
+    margin-top: 2px;
+    font-size: 12px;
+  }
+
+  .panel.grow {
+    flex: 3 1 0;
+  }
+
+  .side {
+    flex: 2 1 0;
+  }
+
+  .panel.small {
+    flex: 1 1 0;
+  }
+
+  .panel.small h2,
+  h2 {
+    font-size: 16px;
+  }
+
+  .genres {
+    margin-top: 10px;
+    gap: 6px;
+  }
+
+  .genre-l {
+    flex-basis: 124px;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .genre-bars {
+    gap: 2px;
+  }
+
+  .key {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+
+  .gb {
+    font-size: 12px;
+    line-height: 15px;
+  }
+
+  .gb-fill {
+    height: 11px;
+  }
+
+  .gb.best .gb-fill {
+    height: 8px;
+  }
+
+  .bars {
+    margin-top: 10px;
+    gap: 5px;
+  }
+
+  .bar-row,
+  .bar-row.lg {
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  /* 紙では項目名を省略しない */
+  .bar-l {
+    flex-basis: 84px !important;
+    white-space: normal;
+    line-height: 1.25;
+    font-size: 12px;
+  }
+
+  .bar-n,
+  .bar-row.lg .bar-n {
+    flex-basis: 26px;
+    font-size: 13px;
+  }
+
+  .hours {
+    margin-top: 10px;
+    height: 120px;
+    gap: 4px;
+  }
+
+  .hcol {
+    font-size: 12px;
+  }
+
+  .hours-x {
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .hours-x span {
+    font-size: 11px;
+  }
+
+  .export-h {
+    padding: 8px 14px;
+  }
+
+  .export .spacer {
+    display: none;
+  }
+
+  .comments {
+    padding: 4px 14px 10px;
+  }
+
+  .cm {
+    padding: 8px 0;
+    gap: 4px 12px;
+  }
+
+  .cm-t {
+    flex-basis: 96px;
+    font-size: 13px;
+  }
+
+  .cm-src {
+    font-size: 12px;
+  }
+
+  .cm-x {
+    font-size: 14px;
+    line-height: 22px;
+  }
 }

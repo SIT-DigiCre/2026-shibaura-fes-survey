@@ -45,6 +45,60 @@ for (const w of [1440, 390]) {
   });
 }
 
+test('ダッシュボード: 印刷・PDF 保存', async ({ page }) => {
+  const errors = collectErrors(page);
+  // A4 縦の印字幅（余白 10mm）
+  await page.setViewportSize({ width: 718, height: 1046 });
+  await page.goto('/dashboard/?demo=1');
+  await expect(page.locator('.kpi')).toHaveCount(4);
+  await fontsReady(page);
+  await page.evaluate(() => {
+    const w = window as unknown as { printed: number };
+    w.printed = 0;
+    window.print = () => {
+      w.printed++;
+    };
+  });
+  await page.locator('#print').click();
+  expect(await page.evaluate(() => (window as unknown as { printed: number }).printed)).toBe(1);
+
+  const beforePrint = () => page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+  const afterPrint = () => page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+
+  // ロック中: 集計だけが載り、操作部とコメントは載らない
+  await beforePrint();
+  await page.emulateMedia({ media: 'print' });
+  await expect(page).toHaveTitle(/^デジクリアンケート集計_\d{8}_\d{4}$/);
+  for (const sel of ['#print', '#fs', '#locked', '#notice']) await expect(page.locator(sel)).toBeHidden();
+  await expect(page.locator('#export')).toBeHidden();
+  await expect(page.locator('#printedAt')).toBeVisible();
+  await expect(page.locator('#demoBadge')).toBeVisible();
+  // 用紙幅で KPI が 1 列に並び、右にはみ出さない
+  const tops = await page.locator('.kpi').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().top));
+  expect(new Set(tops).size).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(718);
+  await page.pdf({ path: SHOT + 'dashboard-print-locked.pdf', preferCSSPageSize: true, printBackground: true });
+  await afterPrint();
+  await page.emulateMedia({ media: 'screen' });
+  await expect(page).toHaveTitle(/^アンケート集計/);
+  await expect(page.locator('#print')).toBeVisible();
+
+  // 解除中: コメントを全件載せ、印刷後は画面の表示件数に戻す
+  await page.locator('#dash-key').fill('demo');
+  await page.getByRole('button', { name: '解除' }).click();
+  await expect(page.locator('.cm')).toHaveCount(20);
+  await beforePrint();
+  await page.emulateMedia({ media: 'print' });
+  expect(await page.locator('.cm').count()).toBeGreaterThan(70);
+  await expect(page.locator('#more')).toHaveCount(0);
+  await expect(page.locator('#csv')).toBeHidden();
+  await page.pdf({ path: SHOT + 'dashboard-print-unlocked.pdf', preferCSSPageSize: true, printBackground: true });
+  await afterPrint();
+  await page.emulateMedia({ media: 'screen' });
+  await expect(page.locator('.cm')).toHaveCount(20);
+  expect(errors).toEqual([]);
+});
+
 test('ダッシュボード: GAS から取得し、合言葉が違えばロックのまま', async ({ page }) => {
   const errors = collectErrors(page);
   const rows = [

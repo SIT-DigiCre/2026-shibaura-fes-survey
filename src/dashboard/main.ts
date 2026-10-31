@@ -1,6 +1,6 @@
 // 集計ダッシュボード（/dashboard/。?demo=1 でサンプルデータ）
 import './style.css';
-import { GAS_URL, downloadCsv, isoLocal, type SurveyRecord } from '../shared/record';
+import { GAS_URL, downloadCsv, fileStamp, isoLocal, type SurveyRecord } from '../shared/record';
 import { aggregate, type Count } from './aggregate';
 import { DEMO_DAYS, demoRows } from './demo';
 
@@ -16,6 +16,7 @@ const pct = (n: number, max: number) => (max ? Math.round((n / max) * 100) : 0);
 let rows: SurveyRecord[] = [];
 let auth = false;
 let commentsShown = COMMENTS_STEP;
+let printing = false;
 let key = '';
 try {
   key = sessionStorage.getItem(KEY_STORE) || '';
@@ -154,7 +155,7 @@ function render() {
         '</span><div class="hbar' +
         (h === peak && h.n ? ' peak' : '') +
         '" style="height:' +
-        Math.round((h.n / hmax) * 150) +
+        Math.round((h.n / hmax) * (printing ? 96 : 150)) +
         'px"></div></div>',
     )
     .join('');
@@ -176,10 +177,12 @@ function render() {
   $('locked').hidden = auth;
   if (auth) {
     $('csv').textContent = 'CSVをダウンロード（全' + rows.length + '件）';
-    const rest = a.comments.length - commentsShown;
+    // 印刷には折りたたまず全件載せる
+    const shown = printing ? a.comments.length : commentsShown;
+    const rest = a.comments.length - shown;
     $('comments').innerHTML = a.comments.length
       ? a.comments
-          .slice(0, commentsShown)
+          .slice(0, shown)
           .map(
             (c) =>
               '<div class="cm"><span class="cm-t hud">' +
@@ -227,6 +230,20 @@ $('comments').addEventListener('click', (e) => {
 });
 $('csv').addEventListener('click', () => {
   if (auth) downloadCsv(rows);
+});
+$('print').addEventListener('click', () => window.print());
+// Ctrl+P でも同じ内容になるよう beforeprint で整える。title は PDF の既定のファイル名になる
+const pageTitle = document.title;
+window.addEventListener('beforeprint', () => {
+  printing = true;
+  document.title = 'デジクリアンケート集計_' + fileStamp();
+  $('printedAt').textContent = new Date().toLocaleString('ja-JP');
+  render();
+});
+window.addEventListener('afterprint', () => {
+  printing = false;
+  document.title = pageTitle;
+  render();
 });
 $('fs').addEventListener('click', () => {
   if (document.fullscreenElement) document.exitFullscreen();
