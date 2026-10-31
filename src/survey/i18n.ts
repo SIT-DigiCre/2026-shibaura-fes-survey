@@ -13,7 +13,7 @@ const EN: Record<string, string> = {
   イラスト: 'Illustration',
   MV: 'Music videos',
   ゲーム展示: 'Games',
-  DTM体験: 'Try making music',
+  DTM体験: 'DTM Experiment',
   '楽曲・映像視聴': 'Music & video',
   文字書き: 'Creative writing',
   物販: 'Merchandise',
