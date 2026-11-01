@@ -127,8 +127,7 @@ test('スマホ版: 英語でも「その他」を書ける。記入以外は日
         [...document.querySelectorAll('.o-in, .lb')]
           .filter(
             (e) =>
-              e.scrollWidth > e.clientWidth + 1 ||
-              (!e.classList.contains('lb') && e.scrollHeight > e.clientHeight + 1),
+              e.scrollWidth > e.clientWidth + 1 || (!e.classList.contains('lb') && e.scrollHeight > e.clientHeight + 1),
           )
           .map((e) => e.textContent),
       ),

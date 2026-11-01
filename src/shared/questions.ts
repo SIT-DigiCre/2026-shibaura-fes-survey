@@ -10,6 +10,7 @@ export const GENRES: ReadonlyArray<readonly [code: string, label: string]> = [
   ['H', '物販'],
   ['I', 'ライブ創作'],
   ['J', '企画うちよそ'],
+  ['K', 'システム'],
 ];
 
 export function genreName(code: string): string {

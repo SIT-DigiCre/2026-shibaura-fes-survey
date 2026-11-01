@@ -35,8 +35,9 @@ test('待ち受け → Q1〜Q7（★BEST 含む）→ 送信 → お礼 → 待�
   await page.locator('#next').click();
   await expect(page.locator('.q-num')).toHaveText('Q1');
 
-  // 「その他」はない
-  await expect(page.locator('.o')).toHaveCount(10);
+  // A〜K（K はシステム）。「その他」はない
+  await expect(page.locator('.o')).toHaveCount(11);
+  await expect(page.locator('.o[data-v="K"]')).toContainText('システム');
   await expect(page.locator('.o', { hasText: 'その他' })).toHaveCount(0);
   const opt = (v: string) => page.locator('.o[data-v="' + v + '"]');
   await opt('A').click();

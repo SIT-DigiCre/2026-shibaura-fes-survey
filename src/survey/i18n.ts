@@ -19,6 +19,7 @@ const EN: Record<string, string> = {
   物販: 'Merchandise',
   ライブ創作: 'Live creation',
   企画うちよそ: 'OC crossover project',
+  システム: 'System',
   // Q2
   '良かった理由は？': 'What did you like about it?',
   いくつでも選べます: 'Choose as many as you like',

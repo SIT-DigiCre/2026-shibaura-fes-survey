@@ -13,7 +13,7 @@ for (const w of [1440, 390]) {
     await expect(page.locator('#demoBadge')).toBeVisible();
     await expect(page.locator('.kpi')).toHaveCount(4);
     await expect(page.locator('.kpi').first()).toContainText('128');
-    await expect(page.locator('.genre')).toHaveCount(10);
+    await expect(page.locator('.genre')).toHaveCount(11);
     // 年齢は表示しない
     await expect(page.locator('.panel.small h2')).toHaveText(['良かった理由', '部員の対応', '職業・属性']);
     await expect(page.locator('#export')).toBeHidden();

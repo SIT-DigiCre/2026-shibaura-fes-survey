@@ -16,7 +16,7 @@ export function demoRows(): SurveyRecord[] {
   const r = rng(2026);
   const pick = <T>(a: readonly T[]) => a[Math.floor(r() * a.length)];
   // 人気の偏り（ゲーム展示・イラスト・VTuber が多め）
-  const gw = [61, 38, 72, 55, 49, 33, 18, 41, 27, 22];
+  const gw = [61, 38, 72, 55, 49, 33, 18, 41, 27, 22, 14];
   const hw = [5, 12, 19, 24, 28, 21, 14, 5];
   const rows: SurveyRecord[] = [];
   const days = DEMO_DAYS.map((s) => new Date(s + 'T00:00:00'));
